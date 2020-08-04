@@ -18,7 +18,8 @@
   },
   "scripts": {
     "test": "tiddlywiki test",
-    "build": "tiddlywiki src --build index"
+    "build": "tiddlywiki src --build index",
+    "build-readme": "tiddlywiki src --rendertiddler $:/plugins/ento/gemini/readme $(pwd)/README.md text/html"
   },
   "repository": {
     "type": "git",

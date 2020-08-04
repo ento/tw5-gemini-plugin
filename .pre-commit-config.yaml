@@ -1,0 +1,13 @@
+repos:
+- repo: local
+  hooks:
+  - id: check-readme
+    name: Check top-level readme is consistent with the plugin's readme
+    entry: ./bin/check-readme.sh
+    language: script
+    files: ^(src/plugins/[^/]+/readme\.tid|README\.md)$
+  - id: check-version
+    name: Check version in package.json is consistent with the plugin's version
+    entry: ./bin/check-version.js
+    language: script
+    files: ^(src/plugins/*/plugin\.info|package\.json)$
