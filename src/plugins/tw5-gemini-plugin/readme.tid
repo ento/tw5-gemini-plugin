@@ -1,14 +1,49 @@
 title: $:/plugins/ento/gemini/readme
 type: text/vnd.tiddlywiki
 
-! tw5-gemini-plugin
+This plugin includes:
 
-Gemini server for serving tiddlers
+* Node.js command for spinning up a Gemini server that serves tiddlers
+* Parser module for viewing text/gemini Tiddlers
 
 !! Usage
 
+!!! `--gemini-listen` command
+
+```
+tiddlywiki path/to/wiki --gemini-listen [param=value]
+```
+
+The command can be used in conjunction with the `--listen` command.
+
+Parameters:
+
+* `tls-key=required/path/to.key`
+* `tls-cert=required/path/to.crt`
+* `port=1965`
+* `host=127.0.0.1`
+* `root-tiddler=HelloGemini`: Specify the title of the Tiddler to serve at `/`
+* `debug-level=none`: Set to any other string to enable request logging.
+* `path-prefix=`: Serve the wiki at the specified path.
+
+Config
+
+* `$:/plugins/ento/gemini/config/filter`: (default: none) Only serve Tiddlers that match this filter.
+
+!!! `text/gemini` parser
+
+Set the type of tiddler to `text/gemini`.
+
+See "5 The text/gemini media type" of [[the spec|https://gemini.circumlunar.space/docs/specification.html]] for available markups. Currently v0.14.2 of the spec is implemented.
+
 !! Installation
 
-To add the plugin to your own ~TiddlyWiki5, drag this link to the browser window:
+If you don't need Node.js features, drag this link to your TiddlyWiki:
 
 $:/plugins/ento/tw5-gemini-plugin
+
+Otherwise, install the plugin through npm and point to it with `TIDDLYWIKI_PLUGIN_PATH`.
+
+1. Run `npm install tw5-gemini-plugin`
+2. Edit `tiddlywiki.info` file of your wiki and add `tw5-gemini-plugin` to `plugins`
+3. Run the server with `TIDDLYWIKI_PLUGIN_PATH=$(pwd)/node_modules tiddlywiki ...`
