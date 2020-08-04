@@ -11,12 +11,16 @@
     "@derhuerst/gemini": "^1.0.1"
   },
   "devDependencies": {
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "tiddlywiki": "^5.1.22"
   },
   "peerDependencies": {
     "tiddlywiki": ">=5.0.8"
   },
   "scripts": {
+    "eslint": "eslint .",
     "test": "tiddlywiki test",
     "build": "tiddlywiki src --build index",
     "build-readme": "tiddlywiki src --rendertiddler $:/plugins/ento/gemini/readme $(pwd)/README.md text/html"
