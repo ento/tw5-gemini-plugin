@@ -1,0 +1,14 @@
+title: $:/plugins/ento/gemini/readme
+type: text/vnd.tiddlywiki
+
+! tw5-gemini-plugin
+
+Gemini server for serving tiddlers
+
+!! Usage
+
+!! Installation
+
+To add the plugin to your own ~TiddlyWiki5, drag this link to the browser window:
+
+$:/plugins/ento/tw5-gemini-plugin

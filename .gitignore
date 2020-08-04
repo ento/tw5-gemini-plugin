@@ -1,0 +1,4 @@
+/node_modules/
+sandbox/tiddlers/
+src/output/
+test/output/

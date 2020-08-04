@@ -1,0 +1,10 @@
+{
+    "title": "$:/plugins/ento/gemini",
+    "description": "Gemini server for serving tiddlers",
+    "author": "ento",
+    "version": "0.0.1",
+    "core-version": ">=5.0.8",
+    "source": "https://github.com/ento/tw5-gemini-plugin",
+    "plugin-type": "plugin",
+    "list": "readme license"
+}

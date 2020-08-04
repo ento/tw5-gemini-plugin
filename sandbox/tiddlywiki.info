@@ -1,0 +1,13 @@
+{
+    "description": "Empty edition",
+    "plugins": [
+        "tiddlywiki/filesystem",
+        "tiddlywiki/markdown",
+        "tiddlywiki/tiddlyweb"
+    ],
+    "themes": [
+        "tiddlywiki/vanilla"
+    ],
+    "build": {
+    }
+}
