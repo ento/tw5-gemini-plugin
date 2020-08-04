@@ -11,4 +11,6 @@ overrides:
   - files: 'test/tiddlers/**/*.js'
     env:
       jasmine: true
-rules: {}
+rules:
+  spaced-comment: ["error", "always", { "markers": ["\\"] }]
+  import/no-unresolved: ["error", { ignore: ['^\$:'] }]

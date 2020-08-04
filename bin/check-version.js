@@ -1,17 +1,17 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
-const path = require('path'),
-      fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 
 function get(name, obj, key) {
   const val = key.split('.').reduce((acc, next) => {
     const sofar = [...acc.sofar, next];
     if (next in acc.current) {
-      return {current: acc.current[next], sofar: sofar};
-    } else {
-      throw `${name} doesn't contain property '${sofar.join(".")}'`;
+      return { current: acc.current[next], sofar };
     }
-  }, {current: obj, sofar: []});
+    throw new Error(`${name} doesn't contain property '${sofar.join('.')}'`);
+  }, { current: obj, sofar: [] });
   return val.current;
 }
 
@@ -42,10 +42,9 @@ const hasMismatch = mustMatch.reduce((acc, match) => {
     if (packageValue !== pluginValue) {
       console.error(`${match.message}: '${match.packageJson}' of ${packageJsonPath} is ${packageValue} while ${match.pluginInfo} of ${pluginInfoPath} is ${pluginValue}`);
       return acc || true;
-    } else {
-      return acc || false;
     }
-  } catch(e) {
+    return acc || false;
+  } catch (e) {
     console.error(e);
     return acc || true;
   }
