@@ -14,7 +14,7 @@
     "tiddlywiki": "^5.1.22"
   },
   "peerDependencies": {
-    "tiddlywiki": ">=5.1.22"
+    "tiddlywiki": ">=5.0.8"
   },
   "scripts": {
     "test": "tiddlywiki test",
