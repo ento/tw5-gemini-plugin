@@ -1,0 +1,36 @@
+{
+  "name": "tw5-gemini-plugin",
+  "version": "0.1.0",
+  "description": "Gemini server and other utilities for TiddlyWiki5",
+  "main": "index.js",
+  "directories": {
+    "test": "test",
+    "lib": "src/plugins/tw5-gemini-plugin"
+  },
+  "dependencies": {
+    "@derhuerst/gemini": "^1.0.1"
+  },
+  "devDependencies": {
+    "tiddlywiki": "^5.1.22"
+  },
+  "peerDependencies": {
+    "tiddlywiki": ">=5.1.22"
+  },
+  "scripts": {
+    "test": "tiddlywiki test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ento/tw5-gemini-plugin.git"
+  },
+  "keywords": [
+    "tiddlywiki5",
+    "gemini"
+  ],
+  "author": "ento",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/ento/tw5-gemini-plugin/issues"
+  },
+  "homepage": "https://github.com/ento/tw5-gemini-plugin#readme"
+}
