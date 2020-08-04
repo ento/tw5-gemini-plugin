@@ -17,7 +17,8 @@
     "tiddlywiki": ">=5.1.22"
   },
   "scripts": {
-    "test": "tiddlywiki test"
+    "test": "tiddlywiki test",
+    "build": "tiddlywiki src --build index"
   },
   "repository": {
     "type": "git",
