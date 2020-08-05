@@ -28,12 +28,17 @@ exports.handler = function handler(request, response, _params, state) {
   }
   if (!tiddler) {
     response.notFound();
-  } else if (tiddler.fields.type === 'text/gemini') {
-    response.mimeType = 'text/gemini';
-    response.end(tiddler.fields.text);
   } else {
-    const text = state.wiki.renderTiddler('text/plain', tiddler.fields.title);
-    response.mimeType = 'text/plain';
+    let { text } = tiddler.fields;
+    let mimeType = 'text/gemini';
+    if (tiddler.fields.type !== 'text/gemini') {
+      mimeType = 'text/plain';
+      text = state.wiki.renderTiddler('text/plain', tiddler.fields.title);
+    }
+    if (tiddler.fields.lang) {
+      mimeType += `; lang=${tiddler.fields.lang}`;
+    }
+    response.mimeType = mimeType;
     response.end(text);
   }
 };

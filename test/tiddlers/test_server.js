@@ -33,6 +33,18 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('sets the lang parameter', (done) => {
+    const wiki = new $tw.Wiki();
+    const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
+    wiki.addTiddler({
+      title: 'Hello', text: '# heading', type: 'text/gemini', lang: 'ja',
+    });
+    const req = { url: '/' };
+    const res = createResponse();
+    expectResponse(res, done, '20 text/gemini; lang=ja\r\n# heading');
+    server.requestHandler(req, res);
+  });
+
   it('serves non-root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
