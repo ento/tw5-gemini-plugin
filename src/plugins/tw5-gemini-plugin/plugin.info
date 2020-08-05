@@ -1,6 +1,6 @@
 {
     "title": "$:/plugins/ento/gemini",
-    "description": "Gemini server for serving tiddlers",
+    "description": "Gemini server and other utilities",
     "author": "ento",
     "version": "0.1.1",
     "core-version": ">=5.0.8",
