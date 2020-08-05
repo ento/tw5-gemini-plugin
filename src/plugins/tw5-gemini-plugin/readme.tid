@@ -26,7 +26,7 @@ Parameters:
 * `debug-level=none`: Set to any other string to enable request logging.
 * `path-prefix=`: Serve the wiki at the specified path.
 
-Config
+Config:
 
 * `$:/plugins/ento/gemini/config/filter`: (default: none) Only serve Tiddlers that match this filter.
 
@@ -42,8 +42,15 @@ If you don't need Node.js features, drag this link to your TiddlyWiki:
 
 $:/plugins/ento/tw5-gemini-plugin
 
+
 Otherwise, install the plugin through npm and point to it with `TIDDLYWIKI_PLUGIN_PATH`.
 
-1. Run `npm install tw5-gemini-plugin`
+1. Run `npm install git+https://github.com/ento/tw5-gemini-plugin.git`
 2. Edit `tiddlywiki.info` file of your wiki and add `tw5-gemini-plugin` to `plugins`
-3. Run the server with `TIDDLYWIKI_PLUGIN_PATH=$(pwd)/node_modules tiddlywiki ...`
+3. Run the server with environment variables pointing at the plugin installation path:
+
+```
+export TIDDLYWIKI_PLUGIN_PATH=$(npm root)/tw5-gemini-plugin/src/plugins
+export NODE_PATH=$(npm root)/tw5-gemini-plugin/node_modules
+tiddlywiki ...
+```
