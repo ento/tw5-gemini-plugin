@@ -1,6 +1,6 @@
 {
   "name": "tw5-gemini-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Gemini server and other utilities for TiddlyWiki5",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,7 @@
     "lib": "src/plugins/tw5-gemini-plugin"
   },
   "dependencies": {
-    "@derhuerst/gemini": "git+https://github.com/ento/gemini.git#aecbb6d"
+    "@derhuerst/gemini": "https://github.com/ento/gemini/tarball/aecbb6d"
   },
   "devDependencies": {
     "eslint": "^7.6.0",
