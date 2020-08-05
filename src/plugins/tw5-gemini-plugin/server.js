@@ -45,6 +45,7 @@ Server.prototype.defaultConfig = {
   host: '127.0.0.1',
   'root-tiddler': 'HelloGemini',
   'debug-level': 'none',
+  'path-prefix': null,
 };
 
 Server.prototype.get = function get(name) {
