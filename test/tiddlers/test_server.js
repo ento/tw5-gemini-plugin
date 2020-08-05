@@ -11,50 +11,57 @@ Test Gemini server
 const createResponse = require('@derhuerst/gemini/lib/response');
 const { Server } = require('$:/plugins/ento/gemini/server.js');
 
+function expectResponse(res, done, expected) {
+  let body = '';
+  res.on('data', (chunk) => {
+    body += chunk;
+  });
+  res.on('end', () => {
+    expect(body).toEqual(expected);
+    done();
+  });
+}
+
 describe('tw5-gemini-plugin server', () => {
-  it('serves root tiddler', () => {
+  it('serves root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
     wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/gemini' });
     const req = { url: '/' };
     const res = createResponse();
-    const spiedMethod = spyOn(res, 'end');
+    expectResponse(res, done, '20 text/gemini\r\n# heading');
     server.requestHandler(req, res);
-    expect(spiedMethod).toHaveBeenCalledWith('# heading');
   });
 
-  it('serves non-root tiddler', () => {
+  it('serves non-root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
     wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/plain' });
     const req = { url: '/#Hello' };
     const res = createResponse();
-    const spiedMethod = spyOn(res, 'end');
+    expectResponse(res, done, '20 text/plain\r\n# heading');
     server.requestHandler(req, res);
-    expect(spiedMethod).toHaveBeenCalledWith('# heading');
   });
 
-  it('serves tiddler with filter', () => {
+  it('serves tiddler with filter', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
     wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/gemini' });
     const server = new Server(wiki, null, {});
     const req = { url: '/#Hello' };
     const res = createResponse();
-    const spiedMethod = spyOn(res, 'end');
+    expectResponse(res, done, '20 text/gemini\r\n# heading');
     server.requestHandler(req, res);
-    expect(spiedMethod).toHaveBeenCalledWith('# heading');
   });
 
-  it('filters out which tiddler to serve', () => {
+  it('filters out which tiddler to serve', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
     wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/plain' });
     const server = new Server(wiki, null, {});
     const req = { url: '/#Hello' };
     const res = createResponse();
-    const spiedMethod = spyOn(res, 'notFound');
+    expectResponse(res, done, '51 \r\n');
     server.requestHandler(req, res);
-    expect(spiedMethod).toHaveBeenCalledWith();
   });
 });
