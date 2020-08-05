@@ -55,6 +55,16 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('understands URL encoding', (done) => {
+    const wiki = new $tw.Wiki();
+    const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
+    wiki.addTiddler({ title: 'Hello World', text: '## heading', type: 'text/plain' });
+    const req = { url: '/#Hello%20World' };
+    const res = createResponse();
+    expectResponse(res, done, '20 text/plain\r\n# Hello World\n## heading');
+    server.requestHandler(req, res);
+  });
+
   it('serves tiddler with filter', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });

@@ -12,7 +12,7 @@ exports.path = /^\/$/;
 exports.handler = function handler(request, response, _params, state) {
   let tiddler;
   if (state.urlInfo.hash !== null) {
-    const title = state.urlInfo.hash.slice(1);
+    const title = decodeURIComponent(state.urlInfo.hash.slice(1));
     const filter = state.wiki.getTiddlerText('$:/plugins/ento/gemini/config/filter');
     if (filter) {
       const source = state.wiki.makeTiddlerIterator([title]);
