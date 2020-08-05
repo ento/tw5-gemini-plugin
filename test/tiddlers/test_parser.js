@@ -72,6 +72,13 @@ describe('tw5-gemini-plugin parser', () => {
     expect(wrapper.outerHTML).toBe('<div><a class="tc-tiddlylink tc-tiddlylink-missing" href="#Hello">Hello</a></div>');
   });
 
+  it('renders incomplete link lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = '=>\n=> ';
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.outerHTML).toBe('<div><br><br></div>');
+  });
+
   it('renders preformatted text lines', () => {
     const wiki = new $tw.Wiki();
     const text = `\`\`\`gemini

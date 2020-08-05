@@ -155,7 +155,9 @@ function render(nodes) {
         }
         break;
       case 'LinkLine':
-        if (node.href[0] === '#') {
+        if (!node.href) {
+          push({ type: 'element', tag: 'br' });
+        } else if (node.href[0] === '#') {
           push({
             type: 'link',
             attributes: {
