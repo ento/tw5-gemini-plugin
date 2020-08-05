@@ -23,7 +23,9 @@
     "eslint": "eslint .",
     "test": "tiddlywiki test",
     "build": "tiddlywiki src --build index",
-    "build-readme": "tiddlywiki src --rendertiddler $:/plugins/ento/gemini/readme $(pwd)/README.md text/html"
+    "build-readme": "tiddlywiki src --rendertiddler $:/plugins/ento/gemini/readme $(pwd)/README.md text/html",
+    "serve": "tiddlywiki src --listen --gemini-listen tls-key=tls.key tls-cert=tls.crt",
+    "sandbox": "tiddlywiki sandbox --listen --gemini-listen tls-key=tls.key tls-cert=tls.crt"
   },
   "repository": {
     "type": "git",
