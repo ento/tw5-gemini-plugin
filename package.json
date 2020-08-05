@@ -8,7 +8,7 @@
     "lib": "src/plugins/tw5-gemini-plugin"
   },
   "dependencies": {
-    "@derhuerst/gemini": "^1.0.1"
+    "@derhuerst/gemini": "git+https://github.com/ento/gemini.git#aecbb6d"
   },
   "devDependencies": {
     "eslint": "^7.6.0",

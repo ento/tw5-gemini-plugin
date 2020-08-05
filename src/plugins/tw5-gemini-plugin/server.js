@@ -28,7 +28,8 @@ const logger = new $tw.utils.Logger('gemini-server');
 */
 function Server(wiki, tls, options) {
   this.wiki = wiki;
-  this.tls = tls;
+  // Clients I've tried don't seem to support ALPN; turn it off
+  this.upstreamOptions = { verifyAlpn: false, ...tls };
   this.routes = options.routes || [];
   this.config = $tw.utils.extend({}, this.defaultConfig, options.config);
   const self = this;
@@ -123,7 +124,7 @@ Server.prototype.listen = function listen(maybePort, maybeHost, maybePrefix) {
     port = process.env[port] || this.defaultConfig.port;
   }
   // Create the server
-  const server = gemini.createServer(this.tls, this.requestHandler.bind(this));
+  const server = gemini.createServer(this.upstreamOptions, this.requestHandler.bind(this));
   // Display the port number after we've started listening
   // (the port number might have been specified as zero, in which case we will get an assigned port)
   server.on('listening', () => {
