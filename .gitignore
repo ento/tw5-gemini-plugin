@@ -1,3 +1,5 @@
+/*.crt
+/*.key
 /node_modules/
 sandbox/tiddlers/
 src/output/
