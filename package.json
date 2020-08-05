@@ -8,7 +8,7 @@
     "lib": "src/plugins/tw5-gemini-plugin"
   },
   "dependencies": {
-    "@derhuerst/gemini": "https://github.com/ento/gemini/tarball/aecbb6d"
+    "@derhuerst/gemini": "1.0.2"
   },
   "devDependencies": {
     "eslint": "^7.6.0",

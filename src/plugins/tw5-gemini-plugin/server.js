@@ -29,7 +29,7 @@ const logger = new $tw.utils.Logger('gemini-server');
 function Server(wiki, tls, options) {
   this.wiki = wiki;
   // Clients I've tried don't seem to support ALPN; turn it off
-  this.upstreamOptions = { verifyAlpn: false, ...tls };
+  this.upstreamOptions = { verifyAlpnId: () => true, ...tls };
   this.routes = options.routes || [];
   this.config = $tw.utils.extend({}, this.defaultConfig, options.config);
   const self = this;
