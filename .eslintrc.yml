@@ -1,0 +1,16 @@
+env:
+  browser: true
+  commonjs: true
+  es2020: true
+  node: true
+extends:
+  - airbnb-base
+parserOptions:
+  ecmaVersion: 11
+overrides:
+  - files: 'test/tiddlers/**/*.js'
+    env:
+      jasmine: true
+rules:
+  spaced-comment: ["error", "always", { "markers": ["\\"] }]
+  import/no-unresolved: ["error", { ignore: ['^\$:'] }]
