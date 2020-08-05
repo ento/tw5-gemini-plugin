@@ -26,10 +26,10 @@ describe('tw5-gemini-plugin server', () => {
   it('serves root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
-    wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/gemini' });
+    wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/gemini' });
     const req = { url: '/' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/gemini\r\n# heading');
+    expectResponse(res, done, '20 text/gemini\r\n# Hello\n## heading');
     server.requestHandler(req, res);
   });
 
@@ -37,32 +37,32 @@ describe('tw5-gemini-plugin server', () => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
     wiki.addTiddler({
-      title: 'Hello', text: '# heading', type: 'text/gemini', lang: 'ja',
+      title: 'Hello', text: '## heading', type: 'text/gemini', lang: 'ja',
     });
     const req = { url: '/' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/gemini; lang=ja\r\n# heading');
+    expectResponse(res, done, '20 text/gemini; lang=ja\r\n# Hello\n## heading');
     server.requestHandler(req, res);
   });
 
   it('serves non-root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
-    wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/plain' });
+    wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/plain' });
     const req = { url: '/#Hello' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/plain\r\n# heading');
+    expectResponse(res, done, '20 text/plain\r\n# Hello\n## heading');
     server.requestHandler(req, res);
   });
 
   it('serves tiddler with filter', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
-    wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/gemini' });
+    wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/gemini' });
     const server = new Server(wiki, null, {});
     const req = { url: '/#Hello' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/gemini\r\n# heading');
+    expectResponse(res, done, '20 text/gemini\r\n# Hello\n## heading');
     server.requestHandler(req, res);
   });
 

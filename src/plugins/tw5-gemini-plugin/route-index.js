@@ -39,6 +39,6 @@ exports.handler = function handler(request, response, _params, state) {
       mimeType += `; lang=${tiddler.fields.lang}`;
     }
     response.mimeType = mimeType;
-    response.end(text);
+    response.end(`# ${tiddler.fields.title}\n${text}`);
   }
 };
