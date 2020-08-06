@@ -52,4 +52,5 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./src/output
+        cname: gemini.pearlwaffles.xyz
       if: github.ref == 'refs/heads/master'
