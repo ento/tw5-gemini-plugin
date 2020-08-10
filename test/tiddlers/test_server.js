@@ -51,7 +51,7 @@ describe('tw5-gemini-plugin server', () => {
     wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/plain' });
     const req = { url: '/#Hello' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/plain\r\n# Hello\n## heading');
+    expectResponse(res, done, '20 text/plain\r\n## heading');
     server.requestHandler(req, res);
   });
 
@@ -61,7 +61,7 @@ describe('tw5-gemini-plugin server', () => {
     wiki.addTiddler({ title: 'Hello World', text: '## heading', type: 'text/plain' });
     const req = { url: '/#Hello%20World' };
     const res = createResponse();
-    expectResponse(res, done, '20 text/plain\r\n# Hello World\n## heading');
+    expectResponse(res, done, '20 text/plain\r\n## heading');
     server.requestHandler(req, res);
   });
 
@@ -84,6 +84,68 @@ describe('tw5-gemini-plugin server', () => {
     const req = { url: '/#Hello' };
     const res = createResponse();
     expectResponse(res, done, '51 \r\n');
+    server.requestHandler(req, res);
+  });
+
+  it('when type is text/gemini, use gemini-mime-type as the mime-type', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '# heading',
+      type: 'text/gemini',
+      'gemini-mime-type': 'some/mime',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/#Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 some/mime\r\n# Hello\n# heading');
+    server.requestHandler(req, res);
+  });
+
+  it('when type != text/gemini, no gemini/render-type, use passthru rendering', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '# heading',
+      type: 'text/plain',
+      'gemini-mime-type': 'some/mime',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/#Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 some/mime\r\n# heading');
+    server.requestHandler(req, res);
+  });
+
+  it('when type != text/gemini, gemini/render-type == text/html, let TiddlyWiki render', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '# list',
+      type: 'text/vnd.tiddlywiki',
+      'gemini-render-type': 'text/html',
+      'gemini-mime-type': 'some/mime',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/#Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 some/mime\r\n<h1 class="">Hello</h1><ol><li>list</li></ol>');
+    server.requestHandler(req, res);
+  });
+
+  it('when type != text/gemini, gemini/render-type != text/html, let TiddlyWiki render', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '# list',
+      type: 'text/vnd.tiddlywiki',
+      'gemini-render-type': 'some/mime-not-html',
+      'gemini-mime-type': 'some/mime',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/#Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 some/mime\r\nHellolist');
     server.requestHandler(req, res);
   });
 });
