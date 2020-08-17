@@ -158,13 +158,19 @@ function render(nodes) {
         if (!node.href) {
           push({ type: 'element', tag: 'br' });
         } else if (node.href[0] === '#') {
-          push({
-            type: 'link',
-            attributes: {
-              to: { type: 'string', value: decodeURI(node.href.substr(1)) },
+          push(
+            {
+              type: 'element',
+              tag: 'div',
+              children: [{
+                type: 'link',
+                attributes: {
+                  to: { type: 'string', value: decodeURI(node.href.substr(1)) },
+                },
+                children: [{ type: 'text', text: node.title || node.href.substr(1) }],
+              }],
             },
-            children: [{ type: 'text', text: node.title || node.href.substr(1) }],
-          });
+          );
         } else {
           push(
             {
