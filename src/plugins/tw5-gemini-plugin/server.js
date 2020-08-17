@@ -16,7 +16,8 @@ const gemini = $tw.node ? require('@derhuerst/gemini') : null;
 const logger = new $tw.utils.Logger('gemini-server');
 
 /**
-  A simple Gemini server with regexp-based routes
+  A simple Gemini server with regexp-based routes.
+  Taken nearly as-is from TiddlyWiki's own server module.
 
   @param {Wiki} wiki Reference to wiki object
   @param {Object} tls TLS certificate and key
