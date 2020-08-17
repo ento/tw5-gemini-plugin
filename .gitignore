@@ -2,6 +2,7 @@
 /*.key
 /.direnv/
 /node_modules/
+/sandbox/output/
 /sandbox/tiddlers/
 /src/output/
 /test/output/
