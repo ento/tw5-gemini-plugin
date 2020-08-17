@@ -43,7 +43,7 @@ function Server(wiki, tls, options) {
 }
 
 Server.prototype.defaultConfig = {
-  port: gemini.DEFAULT_PORT,
+  port: gemini && gemini.DEFAULT_PORT,
   host: '127.0.0.1',
   'root-tiddler': 'HelloGemini',
   'debug-level': 'none',
