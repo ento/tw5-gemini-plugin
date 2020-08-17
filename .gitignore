@@ -1,5 +1,6 @@
 /*.crt
 /*.key
+/.direnv/
 /node_modules/
 sandbox/tiddlers/
 src/output/
