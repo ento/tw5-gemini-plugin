@@ -148,4 +148,20 @@ describe('tw5-gemini-plugin server', () => {
     expectResponse(res, done, '20 some/mime\r\nlist');
     server.requestHandler(req, res);
   });
+
+  it('when letting TiddlyWiki render, currentTiddler variable is available', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '<$view tiddler=<<currentTiddler>> field=title/>',
+      type: 'text/vnd.tiddlywiki',
+      'gemini-render-type': 'some/mime-not-html',
+      'gemini-mime-type': 'some/mime',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/#Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 some/mime\r\nHello');
+    server.requestHandler(req, res);
+  });
 });

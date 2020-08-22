@@ -98,7 +98,9 @@ exports.handler = function handler(request, response, _params, state) {
   }
   text = title + text;
   if (renderStrategy === RenderStrategy.Render) {
-    text = state.wiki.renderText(givenRenderType, type, text);
+    text = state.wiki.renderText(
+      givenRenderType, type, text, { variables: { currentTiddler: tiddler.fields.title } },
+    );
   }
   // Figure out the mime-type
   let mimeType = givenMimeType || type;
