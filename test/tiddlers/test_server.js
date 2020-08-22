@@ -129,7 +129,7 @@ describe('tw5-gemini-plugin server', () => {
     const server = new Server(wiki, null, {});
     const req = { url: '/#Hello' };
     const res = createResponse();
-    expectResponse(res, done, '20 some/mime\r\n<h1 class="">Hello</h1><ol><li>list</li></ol>');
+    expectResponse(res, done, '20 some/mime\r\n<ol><li>list</li></ol>');
     server.requestHandler(req, res);
   });
 
@@ -145,7 +145,7 @@ describe('tw5-gemini-plugin server', () => {
     const server = new Server(wiki, null, {});
     const req = { url: '/#Hello' };
     const res = createResponse();
-    expectResponse(res, done, '20 some/mime\r\nHellolist');
+    expectResponse(res, done, '20 some/mime\r\nlist');
     server.requestHandler(req, res);
   });
 });

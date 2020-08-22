@@ -84,14 +84,17 @@ exports.handler = function handler(request, response, _params, state) {
   }
   // Figure out the main body
   let { text } = tiddler.fields;
-  // Prepend the title if we know the right format.
+  // If passing through the tiddler as-is, prepend the tiddler title
+  // if we know the formatting syntax.
   // This may appear as inconsistent across types, but the convenience
   // seems like a win for now.
   let title = '';
-  if (type === 'text/gemini' || type === 'text/x-markdown') {
-    title = `# ${tiddler.fields.title}\n`;
-  } else if (type === 'text/vnd.tiddlywiki') {
-    title = `! ${tiddler.fields.title}\n`;
+  if (renderStrategy === RenderStrategy.Passthru) {
+    if (type === 'text/gemini' || type === 'text/x-markdown') {
+      title = `# ${tiddler.fields.title}\n`;
+    } else if (type === 'text/vnd.tiddlywiki') {
+      title = `! ${tiddler.fields.title}\n`;
+    }
   }
   text = title + text;
   if (renderStrategy === RenderStrategy.Render) {
