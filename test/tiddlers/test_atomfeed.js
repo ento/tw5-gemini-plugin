@@ -64,4 +64,18 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed({ author: undefined }, '<entry><title>Hello</title><link href="https://example.com/#Hello"></link><id>8b1a9953-c461-1296-a827-abf8c47804d7</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author><link href="https://example.com/#Hello" rel="alternate" type="text/gemini"></link></entry>'));
   });
+
+  it('does not render entry filtered out by config', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: 'Hello', text: '', type: 'text/gemini' });
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: '[tag[no-match]]',
+      type: 'text/plain',
+    });
+    const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.textContent).toBe(feed());
+  });
 });

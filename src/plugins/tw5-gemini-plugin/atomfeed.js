@@ -29,10 +29,7 @@ function geminiAlternate(entry, data) {
 exports.name = 'gemini-atomfeed';
 
 exports.params = [
-  {
-    name: 'filter',
-    default: '[!is[system]!has[draft.of]!sort[modified]]',
-  },
+  { name: 'filter' },
   { name: 'title' },
   { name: 'subtitle' },
   { name: 'author' },
@@ -44,6 +41,15 @@ exports.run = function run(filter, title, subtitle, author, feedpath) {
     title, subtitle, author, feedpath,
   };
   if (AtomSmasher) {
+    const runs = ['[!is[system]!has[draft.of]]'];
+    const configFilter = this.wiki.getTiddlerText('$:/plugins/ento/gemini/config/filter') || '';
+    if (configFilter.trim()) {
+      runs.push(`+${configFilter}`);
+    }
+    if (filter.trim()) {
+      runs.push(`+${filter}`);
+    }
+    const titles = this.wiki.filterTiddlers(runs.join(' '));
     return new AtomSmasher({
       wiki: this.wiki,
       document: this.document,
@@ -51,7 +57,7 @@ exports.run = function run(filter, title, subtitle, author, feedpath) {
         entry: [geminiAlternate],
       },
     })
-      .feedify(this.wiki.filterTiddlers(filter), metadata);
+      .feedify(titles, metadata);
   }
   throw new Error('This macro requires the dullroar/atomfeed plugin. Please install it and reboot/reload.');
 };
