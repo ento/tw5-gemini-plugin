@@ -85,13 +85,14 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
   });
 
   /* Possible combinations of config filter results and macro param filter results:
-     Config   Macro param
-     []       []      => []
-     []       [some2] => []
-     [some]   []      => []
-     [some] < [some2] => [some]
-     [some] = [some2] => [some] (== [some2])
-     [some] > [some2] => [some2]
+     Config    Macro param
+     []        []      => []
+     []        [some2] => []
+     [some]    []      => []
+     [some] <  [some2] => [some]
+     [some] =  [some2] => [some] (== [some2])
+     [some] >  [some2] => [some2]
+     [some] != [some2] => []
   */
 
   function addFixtureTiddlers(wiki) {
@@ -220,5 +221,23 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
+  });
+
+  it('intersects config filter and param filter: [some] != [some2] => []', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const someMatchFilter = '[tag[b]]';
+    const otherMatchFilter = '[tag[c]]';
+    expect(wiki.filterTiddlers(someMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    expect(wiki.filterTiddlers(otherMatchFilter)).toEqual(['Hello 5', 'Hello 6']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: someMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${otherMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.textContent).toBe(feed());
   });
 });
