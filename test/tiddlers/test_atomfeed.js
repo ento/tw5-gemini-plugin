@@ -84,9 +84,9 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
      Config   Macro param
      []       []      => []
      []       [some2] => []
-     [some]   []      => [some]
+     [some]   []      => []
      [some] < [some2] => [some]
-     [some] = [some2] => [some]
+     [some] = [some2] => [some] (== [some2])
      [some] > [some2] => [some2]
   */
 
@@ -113,6 +113,42 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       type: 'text/plain',
     });
     expect(wiki.filterTiddlers(noMatchFilter)).toEqual([]);
+    const text = `<$text text=<<gemini-atomfeed filter:"${noMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.textContent).toBe(feed());
+  });
+
+  it('intersects config filter and param filter: [] [some2] => []', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const noMatchFilter = '[tag[no-match]]';
+    const someMatchFilter = '[tag[b]]';
+    expect(wiki.filterTiddlers(noMatchFilter)).toEqual([]);
+    expect(wiki.filterTiddlers(someMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: noMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${someMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.textContent).toBe(feed());
+  });
+
+  it('intersects config filter and param filter: [some] [] => []', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const noMatchFilter = '[tag[no-match]]';
+    const someMatchFilter = '[tag[b]]';
+    expect(wiki.filterTiddlers(noMatchFilter)).toEqual([]);
+    expect(wiki.filterTiddlers(someMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: someMatchFilter,
+      type: 'text/plain',
+    });
     const text = `<$text text=<<gemini-atomfeed filter:"${noMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed());
