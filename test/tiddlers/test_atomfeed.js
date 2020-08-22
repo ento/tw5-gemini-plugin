@@ -93,14 +93,15 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
      [some] =  [some2] => [some] (== [some2])
      [some] >  [some2] => [some2]
      [some] != [some2] => []
+     [some] ~  [some2] => [some & some2] (partial overlap)
   */
 
   function addFixtureTiddlers(wiki) {
     const tiddlers = [
       { title: 'Hello 1', text: '', tags: 'one a' },
-      { title: 'Hello 2', text: '', tags: 'two a' },
-      { title: 'Hello 3', text: '', tags: 'three b' },
-      { title: 'Hello 4', text: '', tags: 'three b' },
+      { title: 'Hello 2', text: '', tags: 'one a' },
+      { title: 'Hello 3', text: '', tags: 'one three b' },
+      { title: 'Hello 4', text: '', tags: 'one three b' },
       { title: 'Hello 5', text: '', tags: 'three c' },
       { title: 'Hello 6', text: '', tags: 'three c' },
     ];
@@ -239,5 +240,27 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${otherMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed());
+  });
+
+  it('intersects config filter and param filter: [some] ~  [some2] => [some & some2] (partial overlap)', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const someMatchFilter = '[tag[one]]';
+    const otherMatchFilter = '[tag[three]]';
+    expect(wiki.filterTiddlers(someMatchFilter)).toEqual(['Hello 1', 'Hello 2', 'Hello 3', 'Hello 4']);
+    expect(wiki.filterTiddlers(otherMatchFilter)).toEqual(['Hello 3', 'Hello 4', 'Hello 5', 'Hello 6']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: someMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${otherMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    const entries = [
+      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 });
