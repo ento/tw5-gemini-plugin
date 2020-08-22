@@ -36,9 +36,10 @@ function renderText(wiki, text) {
   return renderWidgetNode(widgetNode);
 }
 
-function feed(metadata = { author: '' }, content = '') {
+function feed(metadata = { author: '' }, entries = []) {
+  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author><link href="${e.link}" rel="alternate" type="text/gemini"></link></entry>`);
   return `<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title></title><subtitle></subtitle><link href="https://example.com/atom.xml" rel="self"></link><link href="https://example.com"></link><author><name>${metadata.author}</name></author><id></id><updated></updated>${content}</feed>`;
+<feed xmlns="http://www.w3.org/2005/Atom"><title></title><subtitle></subtitle><link href="https://example.com/atom.xml" rel="self"></link><link href="https://example.com"></link><author><name>${metadata.author}</name></author><id></id><updated></updated>${content.join('')}</feed>`;
 }
 
 describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
@@ -63,7 +64,10 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
     const wrapper = renderText(wiki, text);
-    expect(wrapper.textContent).toBe(feed({ author: undefined }, '<entry><title>Hello</title><link href="https://example.com/#Hello"></link><id>8b1a9953-c461-1296-a827-abf8c47804d7</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author><link href="https://example.com/#Hello" rel="alternate" type="text/gemini"></link></entry>'));
+    const entries = [
+      { title: 'Hello', link: 'https://example.com/#Hello', id: '8b1a9953-c461-1296-a827-abf8c47804d7' },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 
   it('does not render entry filtered out by config', () => {
