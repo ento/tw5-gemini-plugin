@@ -37,7 +37,7 @@ function renderText(wiki, text) {
 }
 
 function feed(metadata = { author: '' }, entries = []) {
-  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author><link href="${e.link}" rel="alternate" type="text/gemini"></link></entry>`);
+  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"><br></br></div></content><author><name>undefined</name></author><link href="${e.link}" rel="alternate" type="text/gemini"></link></entry>`);
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title></title><subtitle></subtitle><link href="https://example.com/atom.xml" rel="self"></link><link href="https://example.com"></link><author><name>${metadata.author}</name></author><id></id><updated></updated>${content.join('')}</feed>`;
 }
@@ -262,5 +262,29 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
+  });
+
+  it('renders when config filter includes the feed tiddler itself', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: '$:/Feed [tag[b]]',
+      type: 'text/plain',
+    });
+    wiki.addTiddler({
+      title: '$:/Feed',
+      text: '<$text text=<<gemini-atomfeed filter:"[limit[20]]">>/>',
+      type: 'text/vnd.tiddlywiki',
+    });
+    const wrapper = wiki.renderTiddler(
+      'text/plain', '$:/Feed', { variables: { currentTiddler: '$:/Feed' } },
+    );
+    const entries = [
+      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+    ];
+    expect(wrapper).toBe(feed({ author: undefined }, entries));
   });
 });

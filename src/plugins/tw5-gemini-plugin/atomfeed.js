@@ -49,7 +49,9 @@ exports.run = function run(filter, title, subtitle, author, feedpath) {
     if (filter.trim()) {
       runs.push(`+${filter}`);
     }
-    const titles = this.wiki.filterTiddlers(runs.join(' '));
+    const currentTiddlerTitle = this.getVariable('currentTiddler');
+    const titles = this.wiki.filterTiddlers(runs.join(' '))
+      .filter((tiddlerTitle) => tiddlerTitle !== currentTiddlerTitle);
     return new AtomSmasher({
       wiki: this.wiki,
       document: this.document,
