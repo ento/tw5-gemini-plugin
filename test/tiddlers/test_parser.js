@@ -65,11 +65,18 @@ describe('tw5-gemini-plugin parser', () => {
     expect(wrapper.innerHTML).toBe('<div><a href="http://example.com" rel="noopen noreferrer" target="_blank">Example Website</a></div>');
   });
 
+  it('renders external link line with encoded characters', () => {
+    const wiki = new $tw.Wiki();
+    const text = '=>http://example.com/?q=a%20b';
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<div><a href="http://example.com/?q=a%20b" rel="noopen noreferrer" target="_blank">http://example.com/?q=a%20b</a></div>');
+  });
+
   it('renders internal link line', () => {
     const wiki = new $tw.Wiki();
-    const text = '=> #Hello';
+    const text = '=> #Hello%20Gemini';
     const wrapper = renderText(wiki, text);
-    expect(wrapper.outerHTML).toBe('<div><div><a class="tc-tiddlylink tc-tiddlylink-missing" href="#Hello">Hello</a></div></div>');
+    expect(wrapper.outerHTML).toBe('<div><div><a class="tc-tiddlylink tc-tiddlylink-missing" href="#Hello%20Gemini">Hello Gemini</a></div></div>');
   });
 
   it('renders incomplete link lines', () => {
