@@ -99,9 +99,9 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 1', text: '', tags: 'one a' },
       { title: 'Hello 2', text: '', tags: 'two a' },
       { title: 'Hello 3', text: '', tags: 'three b' },
-      { title: 'Hello 4', text: '', tags: 'four b' },
-      { title: 'Hello 5', text: '', tags: 'five c' },
-      { title: 'Hello 6', text: '', tags: 'six c' },
+      { title: 'Hello 4', text: '', tags: 'three b' },
+      { title: 'Hello 5', text: '', tags: 'three c' },
+      { title: 'Hello 6', text: '', tags: 'three c' },
     ];
     tiddlers.forEach((t) => wiki.addTiddler({ type: 'text/gemini', ...t }));
   }
@@ -156,5 +156,69 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${noMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed());
+  });
+
+  it('intersects config filter and param filter: [some] < [some2] => [some]', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const smallMatchFilter = '[tag[b]]';
+    const bigMatchFilter = '[tag[three]]';
+    expect(wiki.filterTiddlers(smallMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    expect(wiki.filterTiddlers(bigMatchFilter)).toEqual(['Hello 3', 'Hello 4', 'Hello 5', 'Hello 6']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: smallMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${bigMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    const entries = [
+      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
+  });
+
+  it('intersects config filter and param filter: [some] = [some2] => [some]', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const smallMatchFilter = '[tag[b]]';
+    expect(wiki.filterTiddlers(smallMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: smallMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${smallMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    const entries = [
+      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
+  });
+
+  it('intersects config filter and param filter: [some] > [some2] => [some2]', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
+    addFixtureTiddlers(wiki);
+    const smallMatchFilter = '[tag[b]]';
+    const bigMatchFilter = '[tag[three]]';
+    expect(wiki.filterTiddlers(smallMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+    expect(wiki.filterTiddlers(bigMatchFilter)).toEqual(['Hello 3', 'Hello 4', 'Hello 5', 'Hello 6']);
+    wiki.addTiddler({
+      title: '$:/plugins/ento/gemini/config/filter',
+      text: bigMatchFilter,
+      type: 'text/plain',
+    });
+    const text = `<$text text=<<gemini-atomfeed filter:"${smallMatchFilter}">>/>`;
+    const wrapper = renderText(wiki, text);
+    const entries = [
+      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 });
