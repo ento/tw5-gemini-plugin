@@ -44,6 +44,7 @@ function feed(metadata = { author: '' }, content = '') {
 describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
   it('renders with no entries', () => {
     const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'https://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed());
