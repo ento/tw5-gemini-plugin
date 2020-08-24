@@ -178,7 +178,19 @@ function render(nodes) {
         if (!node.href) {
           push({ type: 'element', tag: 'br' });
         } else if (node.href[0] === '#') {
-          const href = decodeURI(node.href.substr(1));
+          let href;
+          try {
+            href = decodeURI(node.href.substr(1));
+          } catch (e) {
+            // We know sometimes the link reference is not a valid URI,
+            // either intentionally or unintentionally.
+            if (e.constructor === URIError) {
+              // In that case, use the original string instead of throwing an error.
+              href = node.href.substr(1);
+            } else {
+              throw e;
+            }
+          }
           push(
             {
               type: 'element',
