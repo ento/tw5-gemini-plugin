@@ -172,11 +172,13 @@ by foo`;
       const wiki = new $tw.Wiki();
       const linePrefixes = ['', '#', '##', '###', '=>', '>', '*', '```'];
       const empty = fc.constant('');
+      // Generator for simple lines consisting of prefixes and arbitrary string
       const simpleLine = fc.tuple(
         fc.constantFrom(...linePrefixes),
         fc.constantFrom('', ' '),
         fc.string(),
       ).map((t) => t.join(''));
+      // Generators for lines that have some kind of expected structure
       const linkLine = fc.tuple(
         fc.constant('=>'),
         fc.constantFrom('', ' ', ' #'),
@@ -193,6 +195,7 @@ by foo`;
         fc.constant('```'),
         fc.oneof(empty, fc.string()),
       ).map((t) => t.join(''));
+
       fc.assert(
         fc.property(fc.array(fc.oneof(simpleLine, linkLine, preformattedBlock)), (data) => {
           const text = data.join('\n');
