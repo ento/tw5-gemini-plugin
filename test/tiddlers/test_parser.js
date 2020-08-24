@@ -8,6 +8,8 @@ Test Gemini parser for TiddlyWiki
 
 /* global $tw: false */
 
+const fc = $tw.node ? require('fast-check') : null;
+
 /* helper functions taken from TiddlyWiki5/editions/test/tiddlers/tests/test-widget.js */
 const widget = require('$:/core/modules/widgets/widget.js');
 
@@ -115,7 +117,33 @@ after`;
     expect(wrapper.innerHTML).toBe('<h1>h1</h1><h2>h2</h2><h3>h3</h3>');
   });
 
+  it('renders unordered list item lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `* a
+*  b`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<ul><li>a</li><li>b</li></ul>');
+  });
+
+  it('renders unordered list item lines surrounded by text lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `list
+* a
+* b
+*after list`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<p>list</p><ul><li>a</li><li>b</li></ul><p>*after list</p>');
+  });
+
   it('renders quoted lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `>a
+> b`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<blockquote><div>a</div><div> b</div></blockquote>');
+  });
+
+  it('renders quoted lines surrounded by text lines', () => {
     const wiki = new $tw.Wiki();
     const text = `quote
 >a
@@ -124,4 +152,39 @@ by foo`;
     const wrapper = renderText(wiki, text);
     expect(wrapper.innerHTML).toBe('<p>quote</p><blockquote><div>a</div><div> b</div></blockquote><p>by foo</p>');
   });
+
+  if (fc) {
+    fit('renders arbitrary text', () => {
+      const wiki = new $tw.Wiki();
+      const linePrefixes = ['', '#', '##', '###', '=>', '>', '*', '```'];
+      const empty = fc.constant('');
+      const simpleLine = fc.tuple(
+        fc.constantFrom(...linePrefixes),
+        fc.constantFrom('', ' '),
+        fc.string(),
+      ).map((t) => t.join(''));
+      const linkLine = fc.tuple(
+        fc.constant('=>'),
+        fc.constantFrom('', ' ', ' #'),
+        fc.oneof(fc.webUrl(), fc.emailAddress(), fc.string()),
+        fc.constantFrom('', ' '),
+        fc.oneof(empty, fc.string()),
+      ).map((t) => t.join(''));
+      const preformattedBlock = fc.tuple(
+        fc.constant('```'),
+        fc.oneof(empty, fc.string()),
+        fc.constant('\n'),
+        fc.oneof(empty, simpleLine, fc.string()),
+        fc.constant('\n'),
+        fc.constant('```'),
+        fc.oneof(empty, fc.string()),
+      ).map((t) => t.join(''));
+      fc.assert(
+        fc.property(fc.array(fc.oneof(simpleLine, linkLine, preformattedBlock)), (data) => {
+          const text = data.join('\n');
+          expect(() => renderText(wiki, text)).withContext(text).not.toThrowError();
+        }),
+      );
+    });
+  }
 });

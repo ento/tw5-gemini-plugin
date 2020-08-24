@@ -7,12 +7,20 @@ Parser for rendering Gemini text in TiddlyWiki
 
 \*/
 
+/*
+ * Core line types
+ */
+
+/** 5.4.1 Text lines
+ */
 function TextLine(line) {
   this.text = line;
 }
 
 Object.defineProperty(TextLine.prototype, 'type', { value: 'TextLine' });
 
+/** 5.4.2 Link lines
+ */
 function LinkLine(line) {
   const trimmed = line.trim();
   if (trimmed.length === 0) {
@@ -33,6 +41,8 @@ LinkLine.handle = function handle(nodes, _state, line) {
 };
 Object.defineProperty(LinkLine.prototype, 'type', { value: 'LinkLine' });
 
+/** 5.4.4 Preformatted text lines
+ */
 function PreformattedTextLine(line, alt) {
   this.text = line;
   this.alt = alt;
@@ -52,6 +62,12 @@ PreformattedTextLine.handle = function handle(_nodes, state, line) {
 };
 Object.defineProperty(PreformattedTextLine.prototype, 'type', { value: 'PreformattedTextLine' });
 
+/*
+ * Preformatted text
+ */
+
+/** 5.5.1 Heading lines
+ */
 function HeadingLine(line, level) {
   this.text = line;
   this.level = level;
@@ -63,6 +79,8 @@ HeadingLine.handle = function handle(nodes, _state, line) {
 };
 Object.defineProperty(HeadingLine.prototype, 'type', { value: 'HeadingLine' });
 
+/** 5.5.2 Unordered list items
+ */
 function UnorderedListItemLine(line) {
   this.text = line;
 }
@@ -73,6 +91,8 @@ UnorderedListItemLine.handle = function handle(nodes, _state, line) {
 };
 Object.defineProperty(UnorderedListItemLine.prototype, 'type', { value: 'UnorderedListItemLine' });
 
+/** 5.5.3 Quote lines
+ */
 function QuoteLine(line) {
   this.text = line;
 }
@@ -158,7 +178,19 @@ function render(nodes) {
         if (!node.href) {
           push({ type: 'element', tag: 'br' });
         } else if (node.href[0] === '#') {
-          const href = decodeURI(node.href.substr(1));
+          let href;
+          try {
+            href = decodeURI(node.href.substr(1));
+          } catch (e) {
+            // We know sometimes the link reference is not a valid URI,
+            // either intentionally or unintentionally.
+            if (e.constructor === URIError) {
+              // In that case, use the original string instead of throwing an error.
+              href = node.href.substr(1);
+            } else {
+              throw e;
+            }
+          }
           push(
             {
               type: 'element',
@@ -215,7 +247,7 @@ function render(nodes) {
         });
         break;
       case 'UnorderedListItemLine':
-        if (tip.tag !== 'ul') {
+        if (tip === null || tip.tag !== 'ul') {
           push({
             type: 'element',
             tag: 'ul',
@@ -229,7 +261,7 @@ function render(nodes) {
         });
         break;
       case 'QuoteLine':
-        if (tip.tag !== 'blockquote') {
+        if (tip === null || tip.tag !== 'blockquote') {
           push({
             type: 'element',
             tag: 'blockquote',
