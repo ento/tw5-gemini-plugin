@@ -43,6 +43,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = 'hello gemini';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<p>hello gemini</p>');
   });
 
@@ -50,6 +51,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = 'hello\n\ngemini\n';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<p>hello</p><br><p>gemini</p><br>');
   });
 
@@ -57,6 +59,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = '=>http://example.com';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<div><a href="http://example.com" rel="noopen noreferrer" target="_blank">http://example.com</a></div>');
   });
 
@@ -64,6 +67,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = '=>  http://example.com  Example Website';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<div><a href="http://example.com" rel="noopen noreferrer" target="_blank">Example Website</a></div>');
   });
 
@@ -71,6 +75,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = '=>http://example.com/?q=a%20b';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<div><a href="http://example.com/?q=a%20b" rel="noopen noreferrer" target="_blank">http://example.com/?q=a%20b</a></div>');
   });
 
@@ -78,6 +83,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = '=> #Hello%20Gemini';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.outerHTML).toBe('<div><div><a class="tc-tiddlylink tc-tiddlylink-missing" href="#Hello%20Gemini">Hello Gemini</a></div></div>');
   });
 
@@ -85,6 +91,7 @@ describe('tw5-gemini-plugin parser', () => {
     const wiki = new $tw.Wiki();
     const text = '=>\n=> ';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.outerHTML).toBe('<div><br><br></div>');
   });
 
@@ -94,6 +101,7 @@ describe('tw5-gemini-plugin parser', () => {
 # hello
 \`\`\``;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<pre><code># hello</code></pre>');
   });
 
@@ -105,6 +113,7 @@ describe('tw5-gemini-plugin parser', () => {
 \`\`\`
 after`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<p>before</p><pre><code># hello</code></pre><p>after</p>');
   });
 
@@ -114,6 +123,7 @@ after`;
 ## h2
 ###h3`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<h1>h1</h1><h2>h2</h2><h3>h3</h3>');
   });
 
@@ -122,6 +132,7 @@ after`;
     const text = `* a
 *  b`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<ul><li>a</li><li>b</li></ul>');
   });
 
@@ -132,6 +143,7 @@ after`;
 * b
 *after list`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<p>list</p><ul><li>a</li><li>b</li></ul><p>*after list</p>');
   });
 
@@ -140,6 +152,7 @@ after`;
     const text = `>a
 > b`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<blockquote><div>a</div><div> b</div></blockquote>');
   });
 
@@ -150,19 +163,22 @@ after`;
 > b
 by foo`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.innerHTML).toBe('<p>quote</p><blockquote><div>a</div><div> b</div></blockquote><p>by foo</p>');
   });
 
   if (fc) {
-    fit('renders arbitrary text', () => {
+    it('renders arbitrary text', () => {
       const wiki = new $tw.Wiki();
       const linePrefixes = ['', '#', '##', '###', '=>', '>', '*', '```'];
       const empty = fc.constant('');
+      // Generator for simple lines consisting of prefixes and arbitrary string
       const simpleLine = fc.tuple(
         fc.constantFrom(...linePrefixes),
         fc.constantFrom('', ' '),
         fc.string(),
       ).map((t) => t.join(''));
+      // Generators for lines that have some kind of expected structure
       const linkLine = fc.tuple(
         fc.constant('=>'),
         fc.constantFrom('', ' ', ' #'),
@@ -179,9 +195,11 @@ by foo`;
         fc.constant('```'),
         fc.oneof(empty, fc.string()),
       ).map((t) => t.join(''));
+
       fc.assert(
         fc.property(fc.array(fc.oneof(simpleLine, linkLine, preformattedBlock)), (data) => {
           const text = data.join('\n');
+
           expect(() => renderText(wiki, text)).withContext(text).not.toThrowError();
         }),
       );
