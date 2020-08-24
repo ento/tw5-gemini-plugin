@@ -235,7 +235,7 @@ function render(nodes) {
         });
         break;
       case 'UnorderedListItemLine':
-        if (tip.tag !== 'ul') {
+        if (tip === null || tip.tag !== 'ul') {
           push({
             type: 'element',
             tag: 'ul',
@@ -249,7 +249,7 @@ function render(nodes) {
         });
         break;
       case 'QuoteLine':
-        if (tip.tag !== 'blockquote') {
+        if (tip === null || tip.tag !== 'blockquote') {
           push({
             type: 'element',
             tag: 'blockquote',

@@ -115,7 +115,33 @@ after`;
     expect(wrapper.innerHTML).toBe('<h1>h1</h1><h2>h2</h2><h3>h3</h3>');
   });
 
+  it('renders unordered list item lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `* a
+*  b`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<ul><li>a</li><li>b</li></ul>');
+  });
+
+  it('renders unordered list item lines surrounded by text lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `list
+* a
+* b
+*after list`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<p>list</p><ul><li>a</li><li>b</li></ul><p>*after list</p>');
+  });
+
   it('renders quoted lines', () => {
+    const wiki = new $tw.Wiki();
+    const text = `>a
+> b`;
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.innerHTML).toBe('<blockquote><div>a</div><div> b</div></blockquote>');
+  });
+
+  it('renders quoted lines surrounded by text lines', () => {
     const wiki = new $tw.Wiki();
     const text = `quote
 >a
