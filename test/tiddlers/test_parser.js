@@ -154,7 +154,7 @@ by foo`;
   });
 
   if (fc) {
-    fit('renders arbitrary text', () => {
+    it('renders arbitrary text', () => {
       const wiki = new $tw.Wiki();
       const linePrefixes = ['', '#', '##', '###', '=>', '>', '*', '```'];
       const empty = fc.constant('');

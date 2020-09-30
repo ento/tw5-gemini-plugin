@@ -6,11 +6,9 @@ module-type: gemini-route
 Path: /t/TiddlerTitle
 
 \*/
+/* global $tw: false */
 
-const RenderStrategy = Object.freeze({
-  Passthru: Symbol('Passthru'),
-  Render: Symbol('Render'),
-});
+const { render: renderAsGemini } = require('$:/plugins/ento/gemini/renderer.js');
 
 exports.path = /^\/t\/(.+)$/;
 
@@ -29,84 +27,83 @@ const getTiddler = (wiki, params) => {
   return null;
 };
 
-const renderTiddler = (wiki, tiddler, response) => {
+const defaultRenderers = {};
+
+function makeNativeWidgetRenderer(mimeType, stringifier) {
+  const renderer = function nativeWidgetRenderer(wiki, tiddler, res) {
+    const options = { variables: { currentTiddler: tiddler.fields.title } };
+    const parser = wiki.parseText(tiddler.fields.type, tiddler.fields.text, options);
+    const widgetNode = wiki.makeWidget(parser, options);
+    const container = $tw.fakeDocument.createElement('div');
+    widgetNode.render(container, null);
+    stringifier(container, res);
+  };
+  renderer.mimeType = mimeType;
+  return renderer;
+}
+defaultRenderers['text/html'] = makeNativeWidgetRenderer(
+  'text/html',
+  (container, res) => res.write(container.innerHTML),
+);
+defaultRenderers['text/plain'] = makeNativeWidgetRenderer(
+  'text/plain',
+  (container, res) => res.write(container.textContent),
+);
+defaultRenderers['text/gemini'] = makeNativeWidgetRenderer(
+  'text/gemini',
+  (container, res) => renderAsGemini(container, res),
+);
+
+function passthroughRenderer(wiki, tiddler, res) {
+  res.write(tiddler.fields.text);
+}
+defaultRenderers['text/x-passthrough'] = passthroughRenderer;
+
+function renderTiddler(wiki, tiddler, response) {
   /*
     Render the found tiddler. How we go about it depends on the tiddler's
     type, gemini-render-type, and gemini-mime-type fields.
 
-    In tagged union form, the possible strategies look like:
+    Which renderer to use is determined in the following order:
+    a. If gemini-render-type is specified, use it
+    b. If not, use the tiddler's type
+    c. If no renderer of that type is found, default to text/gemini
 
-    type RenderStrategy
-      {-| Passthrough the text field as the specified mime-type -}
-      = Passthru MimeType
-      {-| Let TiddlyWiki render the tiddler and then optionally convert -}
-      | Render RenderType
+    Available renderers are:
+    - text/gemini
+    - text/html
+    - text/plain
+    - text/x-passthrough
 
-    type RenderType
-      = HtmlToGemini -- Idea: HTML to Gemini converter
-      | HtmlContent MimeType
-      | TextContent MimeType
+    Of these, all but text/x-passthrough uses the same broad strategy:
 
-    How to determine the rendering strategy:
+    1. The tiddler text is parsed according to its type.
+    2. The parsed tree is rendered to DOM.
+    3. The DOM is converted to string.
 
-    -- Idea: The default renderType could be set per content type, e.g.
-    -- $:/plugins/ento/gemini/config/alwaysRenderAsHtml
-    case (type, renderType, mimeType) of
-      (text/gemini, _, _) ->
-        Passthru (mimeType || type)
-      (_, Nothing, _) ->
-        Passthru (mimeType || type)
-      -- HtmlToGemini not implemented yet
-      -- (_, Just text/html, Just text/gemini) ->
-      --   Render HtmlToGemini
-      (_, Just text/html, _) ->
-        Render (HtmlContent (mimeType || type))
-      (_, Just text/plain, _) ->
-        Render (TextContent (mimeType || type))
+    The text/x-passthrough renderer returns the tiddler text as-is.
+
+    The mime-type of the response is determined as follows:
+    1. If gemini-mime-type is specified, use it
+    2. If not, use the renderer's mimeType property.
+    3. If the renderer doesn't have such a property, use the tiddler type.
   */
   const {
     type,
     'gemini-mime-type': givenMimeType,
     'gemini-render-type': givenRenderType,
   } = tiddler.fields;
-  let renderStrategy;
-  if (type === 'text/gemini') {
-    renderStrategy = RenderStrategy.Passthru;
-  } else if (!givenRenderType) {
-    renderStrategy = RenderStrategy.Passthru;
-  } else {
-    renderStrategy = RenderStrategy.Render;
-  }
-  // Figure out the main body
-  let { text } = tiddler.fields;
-  // If passing through the tiddler as-is, prepend the tiddler title
-  // if we know the formatting syntax.
-  // This may appear as inconsistent across types, but the convenience
-  // seems like a win for now.
-  let titleHeading = '';
-  if (renderStrategy === RenderStrategy.Passthru) {
-    if (type === 'text/gemini' || type === 'text/x-markdown') {
-      titleHeading = `# ${tiddler.fields.title}\n`;
-    } else if (type === 'text/vnd.tiddlywiki') {
-      titleHeading = `! ${tiddler.fields.title}\n`;
-    }
-  }
-  text = titleHeading + text;
-  if (renderStrategy === RenderStrategy.Render) {
-    text = wiki.renderText(
-      givenRenderType, type, text, { variables: { currentTiddler: tiddler.fields.title } },
-    );
-  }
-  // Figure out the mime-type
-  let mimeType = givenMimeType || type;
+  const renderType = givenRenderType || type;
+  const renderer = defaultRenderers[renderType] || defaultRenderers['text/plain'];
+
+  response.mimeType = givenMimeType || renderer.mimeType || type;
   if (tiddler.fields.lang) {
-    mimeType += `; lang=${tiddler.fields.lang}`;
+    response.mimeType += `; lang=${tiddler.fields.lang}`;
   }
-  response.mimeType = mimeType;
-  response.write(text, null, () => {
-    response.end();
-  });
-};
+
+  renderer(wiki, tiddler, response);
+  response.end();
+}
 exports.renderTiddler = renderTiddler;
 
 exports.handler = function handler(request, response, params, state) {
