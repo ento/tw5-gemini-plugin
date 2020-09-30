@@ -7,15 +7,8 @@ Macro to render tiddlers matching a filter as ATOM feed
 
 \*/
 
-function optionalRequire(moduleName) {
-  try {
-    // eslint-disable-next-line global-require, import/no-dynamic-require
-    return require(moduleName);
-  } catch (e) {
-    return null;
-  }
-}
-
+// eslint-disable-next-line import/newline-after-import
+const { optionalRequire } = require('$:/plugins/ento/gemini/utils.js');
 const AtomSmasher = optionalRequire('$:/plugins/dullroar/atomfeed/atomsmasher');
 
 function geminiAlternate(entry, data) {
