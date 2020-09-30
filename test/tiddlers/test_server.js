@@ -49,7 +49,7 @@ describe('tw5-gemini-plugin server', () => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
     wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/plain' });
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 text/plain\r\n## heading');
     server.requestHandler(req, res);
@@ -59,7 +59,7 @@ describe('tw5-gemini-plugin server', () => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'root' } });
     wiki.addTiddler({ title: 'Hello World', text: '## heading', type: 'text/plain' });
-    const req = { url: '/#Hello%20World' };
+    const req = { url: '/t/Hello%20World' };
     const res = createResponse();
     expectResponse(res, done, '20 text/plain\r\n## heading');
     server.requestHandler(req, res);
@@ -70,7 +70,7 @@ describe('tw5-gemini-plugin server', () => {
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
     wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/gemini' });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 text/gemini\r\n# Hello\n## heading');
     server.requestHandler(req, res);
@@ -81,7 +81,7 @@ describe('tw5-gemini-plugin server', () => {
     wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: '[type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
     wiki.addTiddler({ title: 'Hello', text: '# heading', type: 'text/plain' });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '51 \r\n');
     server.requestHandler(req, res);
@@ -96,7 +96,7 @@ describe('tw5-gemini-plugin server', () => {
       'gemini-mime-type': 'some/mime',
     });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 some/mime\r\n# Hello\n# heading');
     server.requestHandler(req, res);
@@ -111,7 +111,7 @@ describe('tw5-gemini-plugin server', () => {
       'gemini-mime-type': 'some/mime',
     });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 some/mime\r\n# heading');
     server.requestHandler(req, res);
@@ -127,7 +127,7 @@ describe('tw5-gemini-plugin server', () => {
       'gemini-mime-type': 'some/mime',
     });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 some/mime\r\n<ol><li>list</li></ol>');
     server.requestHandler(req, res);
@@ -143,7 +143,7 @@ describe('tw5-gemini-plugin server', () => {
       'gemini-mime-type': 'some/mime',
     });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 some/mime\r\nlist');
     server.requestHandler(req, res);
@@ -159,7 +159,7 @@ describe('tw5-gemini-plugin server', () => {
       'gemini-mime-type': 'some/mime',
     });
     const server = new Server(wiki, null, {});
-    const req = { url: '/#Hello' };
+    const req = { url: '/t/Hello' };
     const res = createResponse();
     expectResponse(res, done, '20 some/mime\r\nHello');
     server.requestHandler(req, res);
