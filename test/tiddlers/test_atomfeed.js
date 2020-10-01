@@ -37,7 +37,7 @@ function renderText(wiki, text) {
 }
 
 function feed(metadata = { author: '' }, entries = []) {
-  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"><br></br></div></content><author><name>undefined</name></author><link href="${e.link}" rel="alternate" type="text/gemini"></link></entry>`);
+  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author><link href="${e.link}" rel="alternate" type="text/gemini"></link></entry>`);
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title></title><subtitle></subtitle><link href="https://example.com/atom.xml" rel="self"></link><link href="https://example.com"></link><author><name>${metadata.author}</name></author><id></id><updated></updated>${content.join('')}</feed>`;
 }
