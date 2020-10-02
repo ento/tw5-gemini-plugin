@@ -7,8 +7,9 @@ Macro to render tiddlers matching a filter as ATOM feed
 
 \*/
 
-// eslint-disable-next-line import/newline-after-import
 const { optionalRequire } = require('$:/plugins/ento/gemini/utils.js');
+// eslint-disable-next-line import/newline-after-import
+const { tiddlerToDom } = require('$:/plugins/ento/gemini/renderer.js');
 const AtomSmasher = optionalRequire('$:/plugins/dullroar/atomfeed/atomsmasher');
 
 function pathJoin(parts) {
@@ -38,6 +39,15 @@ exports.run = function run(filter, title, subtitle, author, feedpath) {
       document: this.document,
     })
       .entryHref((data, builder) => pathJoin([builder.metadata.sitehref, `/t/${encodeURIComponent(data.title)}`]))
+      .entryContent((data, builder, dom) => {
+        const container = tiddlerToDom(
+          builder.wiki, builder.wiki.getTiddler(data.title), dom.document,
+        );
+        dom
+          .attr('type', 'xhtml')
+          .add(container)
+          .attr('xmlns', 'http://www.w3.org/1999/xhtml');
+      })
       .feedify(titles, metadata);
   }
   throw new Error('This macro requires the dullroar/atomfeed plugin. Please install it and reboot/reload.');

@@ -8,8 +8,7 @@ Path: /t/TiddlerTitle
 \*/
 /* global $tw: false */
 
-const { render: renderAsGemini } = require('$:/plugins/ento/gemini/renderer.js');
-const transform = require('$:/plugins/ento/gemini/transformer.js');
+const { domToGemtext, tiddlerToDom } = require('$:/plugins/ento/gemini/renderer.js');
 
 exports.path = /^\/t\/(.+)$/;
 
@@ -32,12 +31,7 @@ const defaultRenderers = {};
 
 function makeNativeWidgetRenderer(mimeType, stringifier) {
   const renderer = function nativeWidgetRenderer(wiki, tiddler, res) {
-    const options = { variables: { currentTiddler: tiddler.fields.title } };
-    const parser = wiki.parseText(tiddler.fields.type, tiddler.fields.text, options);
-    const widgetNode = wiki.makeWidget(parser, options);
-    const container = $tw.fakeDocument.createElement('div');
-    widgetNode.render(container, null);
-    transform.rewriteTiddlerLinks(container);
+    const container = tiddlerToDom(wiki, tiddler, $tw.fakeDocument);
     stringifier(container, res);
   };
   renderer.mimeType = mimeType;
@@ -53,7 +47,7 @@ defaultRenderers['text/plain'] = makeNativeWidgetRenderer(
 );
 defaultRenderers['text/gemini'] = makeNativeWidgetRenderer(
   'text/gemini',
-  (container, res) => renderAsGemini(container, res),
+  (container, res) => domToGemtext(container, res),
 );
 
 function passthroughRenderer(wiki, tiddler, res) {

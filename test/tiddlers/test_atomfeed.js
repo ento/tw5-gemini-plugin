@@ -37,7 +37,7 @@ function renderText(wiki, text) {
 }
 
 function feed(metadata = { author: '' }, entries = []) {
-  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml"></div></content><author><name>undefined</name></author></entry>`);
+  const content = entries.map((e) => `<entry><title>${e.title}</title><link href="${e.link}"></link><id>${e.id}</id><updated></updated><content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">${e.content || ''}</div></content><author><name>undefined</name></author></entry>`);
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title></title><subtitle></subtitle><link href="gemini://example.com/atom.xml" rel="self"></link><link href="gemini://example.com"></link><author><name>${metadata.author}</name></author><id></id><updated></updated>${content.join('')}</feed>`;
 }
@@ -163,5 +163,22 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 4', link: 'gemini://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper).toBe(feed({ author: undefined }, entries));
+  });
+
+  it('rewrites internal links', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: 'Hello', text: '=> #Hello', type: 'text/gemini' });
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
+    const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
+    const wrapper = renderText(wiki, text);
+    const entries = [
+      {
+        title: 'Hello',
+        link: 'gemini://example.com/t/Hello',
+        id: '8b1a9953-c461-1296-a827-abf8c47804d7',
+        content: '<div><a class="tc-tiddlylink tc-tiddlylink-resolves" href="/t/Hello">Hello</a></div>',
+      },
+    ];
+    expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 });

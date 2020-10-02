@@ -8,6 +8,8 @@ Convert TiddlyWiki AST as Gemini text
 \*/
 /* global $tw: false */
 
+const transform = require('$:/plugins/ento/gemini/transformer.js');
+
 const spacesRegExp = /[ \t]+/g;
 const newlinesRegExp = /[\r\n]+/g;
 
@@ -166,7 +168,7 @@ class LinkReferences {
  * @param {Node} dom DOM node
  * @param {Writable} stream Writable stream
  */
-function render(node, stream, enableTrace = false) {
+function domToGemtext(node, stream, enableTrace = false) {
   const ctx = {
     isPre: false,
     prefix: '',
@@ -233,4 +235,24 @@ function render(node, stream, enableTrace = false) {
   return ctx.buffer;
 }
 
-exports.render = render;
+exports.domToGemtext = domToGemtext;
+
+/**
+ * Render Tiddler as DOM, rewriting internal links.
+ * @param {Wiki} wiki Wiki instance
+ * @param {Tiddler} tiddler Tiddler to render
+ * @param {Document} document DOM document
+ */
+function tiddlerToDom(wiki, tiddler, document) {
+  const options = {
+    document,
+    variables: { currentTiddler: tiddler.fields.title },
+  };
+  const parser = wiki.parseText(tiddler.fields.type, tiddler.fields.text, options);
+  const widgetNode = wiki.makeWidget(parser, options);
+  const container = document.createElement('div');
+  widgetNode.render(container, null);
+  transform.rewriteTiddlerLinks(container);
+  return container;
+}
+exports.tiddlerToDom = tiddlerToDom;
