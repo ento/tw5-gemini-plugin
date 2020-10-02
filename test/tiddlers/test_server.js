@@ -87,6 +87,28 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('serves tiddler with filter with exact title match', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: 'Hello [type[text/gemini]]', type: 'text/vnd.tiddlywiki' });
+    wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/plain' });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/t/Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 text/plain\r\n## heading');
+    server.requestHandler(req, res);
+  });
+
+  it('does not serve tiddler just because the filter includes the title', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/plugins/ento/gemini/config/filter', text: 'Hello [type[text/gemini]]', type: 'text/plain' });
+    wiki.addTiddler({ title: 'Hello', text: '# Hello', type: 'text/plain' });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/t/Foo' };
+    const res = createResponse();
+    expectResponse(res, done, '51 \r\n');
+    server.requestHandler(req, res);
+  });
+
   it('rewrites internal links', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({

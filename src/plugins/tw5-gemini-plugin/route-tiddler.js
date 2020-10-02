@@ -19,8 +19,8 @@ const getTiddler = (wiki, params) => {
   if (filter) {
     const source = wiki.makeTiddlerIterator([title]);
     const result = wiki.filterTiddlers(filter, null, source);
-    if (result.length > 0) {
-      return wiki.getTiddler(result[0]);
+    if (result.indexOf(title) > -1) {
+      return wiki.getTiddler(title);
     }
   } else {
     return wiki.getTiddler(title);
