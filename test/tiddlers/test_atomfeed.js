@@ -65,7 +65,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
     const wrapper = renderText(wiki, text);
     const entries = [
-      { title: 'Hello', link: 'https://example.com/#Hello', id: '8b1a9953-c461-1296-a827-abf8c47804d7' },
+      { title: 'Hello', link: 'https://example.com/t/Hello', id: '8b1a9953-c461-1296-a827-abf8c47804d7' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
@@ -176,8 +176,8 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${bigMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     const entries = [
-      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
-      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+      { title: 'Hello 3', link: 'https://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
@@ -196,8 +196,8 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${smallMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     const entries = [
-      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
-      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+      { title: 'Hello 3', link: 'https://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
@@ -218,8 +218,8 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${smallMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     const entries = [
-      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
-      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+      { title: 'Hello 3', link: 'https://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
@@ -258,8 +258,8 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const text = `<$text text=<<gemini-atomfeed filter:"${otherMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
     const entries = [
-      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
-      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+      { title: 'Hello 3', link: 'https://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
@@ -282,8 +282,8 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       'text/plain', '$:/Feed', { variables: { currentTiddler: '$:/Feed' } },
     );
     const entries = [
-      { title: 'Hello 3', link: 'https://example.com/#Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
-      { title: 'Hello 4', link: 'https://example.com/#Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
+      { title: 'Hello 3', link: 'https://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
+      { title: 'Hello 4', link: 'https://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
     expect(wrapper).toBe(feed({ author: undefined }, entries));
   });

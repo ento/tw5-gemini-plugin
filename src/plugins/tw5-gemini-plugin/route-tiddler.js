@@ -9,6 +9,7 @@ Path: /t/TiddlerTitle
 /* global $tw: false */
 
 const { render: renderAsGemini } = require('$:/plugins/ento/gemini/renderer.js');
+const transform = require('$:/plugins/ento/gemini/transformer.js');
 
 exports.path = /^\/t\/(.+)$/;
 
@@ -36,6 +37,7 @@ function makeNativeWidgetRenderer(mimeType, stringifier) {
     const widgetNode = wiki.makeWidget(parser, options);
     const container = $tw.fakeDocument.createElement('div');
     widgetNode.render(container, null);
+    transform.rewriteTiddlerLinks(container);
     stringifier(container, res);
   };
   renderer.mimeType = mimeType;

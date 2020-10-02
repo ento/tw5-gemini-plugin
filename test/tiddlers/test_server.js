@@ -87,6 +87,20 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('rewrites internal links', (done) => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({
+      title: 'Hello',
+      text: '=> #Hello',
+      type: 'text/gemini',
+    });
+    const server = new Server(wiki, null, {});
+    const req = { url: '/t/Hello' };
+    const res = createResponse();
+    expectResponse(res, done, '20 text/gemini\r\n=> /t/Hello Hello\n');
+    server.requestHandler(req, res);
+  });
+
   it('when type is text/gemini, use gemini-mime-type as the mime-type', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({
