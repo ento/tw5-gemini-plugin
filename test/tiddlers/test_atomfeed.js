@@ -51,6 +51,14 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     expect(wrapper.textContent).toBe(feed());
   });
 
+  it('renders with default filter', () => {
+    const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
+    const text = '<$text text=<<gemini-atomfeed>>/>';
+    const wrapper = renderText(wiki, text);
+    expect(wrapper.textContent).toBe(feed());
+  });
+
   xit('gives error when filter is invalid', () => {
     const wiki = new $tw.Wiki();
     const text = '<$text text=<<gemini-atomfeed filter:"[[]">>/>';

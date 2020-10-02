@@ -18,7 +18,7 @@ function pathJoin(parts) {
 exports.name = 'gemini-atomfeed';
 
 exports.params = [
-  { name: 'filter' },
+  { name: 'filter', default: '[!is[system]!has[draft.of]!sort[modified]]' },
   { name: 'title' },
   { name: 'subtitle' },
   { name: 'author' },
