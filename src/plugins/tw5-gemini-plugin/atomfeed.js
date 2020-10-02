@@ -30,16 +30,8 @@ exports.run = function run(filter, title, subtitle, author, feedpath) {
     title, subtitle, author, feedpath,
   };
   if (AtomSmasher) {
-    const runs = ['[!is[system]!has[draft.of]]'];
-    const configFilter = this.wiki.getTiddlerText('$:/plugins/ento/gemini/config/filter') || '';
-    if (configFilter.trim()) {
-      runs.push(`+${configFilter}`);
-    }
-    if (filter.trim()) {
-      runs.push(`+${filter}`);
-    }
     const currentTiddlerTitle = this.getVariable('currentTiddler');
-    const titles = this.wiki.filterTiddlers(runs.join(' '))
+    const titles = this.wiki.filterTiddlers(filter)
       .filter((tiddlerTitle) => tiddlerTitle !== currentTiddlerTitle);
     return new AtomSmasher({
       wiki: this.wiki,
