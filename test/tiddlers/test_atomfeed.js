@@ -59,8 +59,14 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     expect(wrapper.textContent).toBe(feed());
   });
 
+  // wiki.filterTiddlers() returns ['Filter error: ${error message}']
+  // when there's a syntax error in the filter string.
+  // This makes it harder to distinguish between legitimate errors
+  // and Tiddler titles that look like a filter error.. although
+  // the latter is unlikely.
   xit('gives error when filter is invalid', () => {
     const wiki = new $tw.Wiki();
+    wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed filter:"[[]">>/>';
     const wrapper = renderText(wiki, text);
     expect(wrapper.textContent).toBe(feed());

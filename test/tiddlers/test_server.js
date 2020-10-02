@@ -23,6 +23,18 @@ function expectResponse(res, done, expected) {
 }
 
 describe('tw5-gemini-plugin server', () => {
+  it('returns error response when request handler errors', (done) => {
+    const wiki = new $tw.Wiki();
+    const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
+    server.doRequestHandler = () => {
+      throw new Error('test error');
+    };
+    const req = { url: '/' };
+    const res = createResponse();
+    expectResponse(res, done, '40 \r\n');
+    server.requestHandler(req, res);
+  });
+
   it('serves root tiddler', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });

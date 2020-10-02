@@ -12,6 +12,7 @@ Serve tiddlers over the Gemini protocol
 const url = $tw.node ? require('url') : null;
 const querystring = $tw.node ? require('querystring') : null;
 const gemini = $tw.node ? require('@derhuerst/gemini') : null;
+const { CODES } = $tw.node ? require('@derhuerst/gemini/lib/statuses') : {};
 
 const logger = new $tw.utils.Logger('gemini-server');
 
@@ -85,6 +86,17 @@ Server.prototype.findMatchingRoute = function findMatchingRoute(request, state) 
 };
 
 Server.prototype.requestHandler = function requestHandler(request, response, maybeOptions) {
+  try {
+    this.doRequestHandler(request, response, maybeOptions);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.trace(e);
+    response.statusCode = CODES.TEMPORARY_FAILURE;
+    response.end('');
+  }
+};
+
+Server.prototype.doRequestHandler = function doRequestHandler(request, response, maybeOptions) {
   const options = maybeOptions || {};
   // Compose the state object
   const state = {};
