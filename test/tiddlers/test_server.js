@@ -121,12 +121,12 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
-  it('rewrites internal links', (done) => {
+  it('renders vnd.tiddlywiki', (done) => {
     const wiki = new $tw.Wiki();
     wiki.addTiddler({
       title: 'Hello',
-      text: '=> #Hello',
-      type: 'text/gemini',
+      text: '<$list>',
+      type: 'text/vnd.tiddlywiki',
     });
     const server = new Server(wiki, null, {});
     const req = { url: '/t/Hello' };

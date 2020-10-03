@@ -255,13 +255,13 @@ exports.domToGemtext = domToGemtext;
 function tiddlerToDom(wiki, tiddler, document) {
   const options = {
     document,
+    importPageMacros: true,
     variables: { currentTiddler: tiddler.fields.title },
   };
-  const parser = wiki.parseText(tiddler.fields.type, tiddler.fields.text, options);
-  const widgetNode = wiki.makeWidget(parser, options);
+  const widgetNode = wiki.makeTranscludeWidget(tiddler.fields.title, options);
   const container = document.createElement('div');
   widgetNode.render(container, null);
   transform.rewriteTiddlerLinks(container);
-  return container;
+  return container.children[0];
 }
 exports.tiddlerToDom = tiddlerToDom;
