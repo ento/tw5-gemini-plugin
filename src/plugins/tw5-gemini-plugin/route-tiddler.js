@@ -10,6 +10,8 @@ Path: /t/TiddlerTitle
 
 const { domToGemtext, tiddlerToDom } = require('$:/plugins/ento/gemini/renderer.js');
 
+const logger = new $tw.utils.Logger('gemini-server');
+
 exports.path = /^\/t\/(.+)$/;
 
 const getTiddler = (wiki, params) => {
@@ -99,6 +101,10 @@ function renderTiddler(wiki, tiddler, response, enableTrace) {
 
   renderer(wiki, tiddler, response, enableTrace);
   response.end();
+
+  if (enableTrace) {
+    logger.log('response.end()');
+  }
 }
 exports.renderTiddler = renderTiddler;
 
