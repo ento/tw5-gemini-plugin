@@ -27,7 +27,7 @@ exports.rewriteTiddlerLinks = (container) => {
   }
 
   function visitNodes(nodes) {
-    nodes.forEach((node) => {
+    Array.from(nodes).forEach((node) => {
       visitNode(node);
     });
   }
