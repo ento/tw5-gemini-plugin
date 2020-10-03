@@ -48,6 +48,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed filter:"">>/>';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.textContent).toBe(feed());
   });
 
@@ -56,6 +57,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed>>/>';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.textContent).toBe(feed());
   });
 
@@ -69,6 +71,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     wiki.addTiddler({ title: '$:/config/atomserver', text: 'gemini://example.com', type: 'text/plain' });
     const text = '<$text text=<<gemini-atomfeed filter:"[[]">>/>';
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.textContent).toBe(feed());
   });
 
@@ -81,6 +84,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     const entries = [
       { title: 'Hello', link: 'gemini://example.com/t/Hello', id: '8b1a9953-c461-1296-a827-abf8c47804d7' },
     ];
+
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 
@@ -94,9 +98,12 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       text: noMatchFilter,
       type: 'text/plain',
     });
+
     expect(wiki.filterTiddlers(noMatchFilter)).toEqual([]);
+
     const text = `<$text text=<<gemini-atomfeed filter:"${noMatchFilter}">>/>`;
     const wrapper = renderText(wiki, text);
+
     expect(wrapper.textContent).toBe(feed());
   });
 
@@ -130,8 +137,10 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
     addFixtureTiddlers(wiki);
     const noMatchFilter = '[tag[no-match]]';
     const someMatchFilter = '[tag[b]]';
+
     expect(wiki.filterTiddlers(noMatchFilter)).toEqual([]);
     expect(wiki.filterTiddlers(someMatchFilter)).toEqual(['Hello 3', 'Hello 4']);
+
     wiki.addTiddler({
       title: '$:/plugins/ento/gemini/config/filter',
       text: noMatchFilter,
@@ -143,6 +152,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 3', link: 'gemini://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
       { title: 'Hello 4', link: 'gemini://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
+
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 
@@ -162,6 +172,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
       { title: 'Hello 3', link: 'gemini://example.com/t/Hello%203', id: '7e2f3ae2-744d-b56b-a992-54f7c7ed9687' },
       { title: 'Hello 4', link: 'gemini://example.com/t/Hello%204', id: '0e0f3c5a-d940-69e7-0375-f6a707767392' },
     ];
+
     expect(wrapper).toBe(feed({ author: undefined }, entries));
   });
 
@@ -179,6 +190,7 @@ describe('tw5-gemini-plugin gemini-atomfeed macro', () => {
         content: '<div><a class="tc-tiddlylink tc-tiddlylink-resolves" href="/t/Hello">Hello</a></div>',
       },
     ];
+
     expect(wrapper.textContent).toBe(feed({ author: undefined }, entries));
   });
 });
