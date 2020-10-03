@@ -103,7 +103,7 @@ function renderTiddler(wiki, tiddler, response, enableTrace) {
   response.end();
 
   if (enableTrace) {
-    logger.log('response.end()');
+    logger.log(JSON.stringify(new Date()), 'response.end()');
   }
 }
 exports.renderTiddler = renderTiddler;
