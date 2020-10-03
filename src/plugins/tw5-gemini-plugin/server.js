@@ -86,19 +86,30 @@ Server.prototype.findMatchingRoute = function findMatchingRoute(request, state) 
 };
 
 Server.prototype.requestHandler = function requestHandler(request, response, maybeOptions) {
+  const start = new Date();
+  let state = { urlInfo: {} };
   try {
-    this.doRequestHandler(request, response, maybeOptions);
+    const options = maybeOptions || {};
+    state = this.initState(request, options);
+    this.doRequestHandler(request, response, state);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.trace(e);
     response.statusCode = CODES.TEMPORARY_FAILURE;
     response.end('');
   }
+  const end = new Date();
+  logger.log(
+    end.toISOString(),
+    JSON.stringify({
+      msec: (end - start),
+      path: state.urlInfo.pathname,
+      status: response.statusCode,
+    }),
+  );
 };
 
-Server.prototype.doRequestHandler = function doRequestHandler(request, response, maybeOptions) {
-  const options = maybeOptions || {};
-  // Compose the state object
+Server.prototype.initState = function initState(request, options) {
   const state = {};
   state.wiki = options.wiki || this.wiki;
   state.server = this;
@@ -106,11 +117,15 @@ Server.prototype.doRequestHandler = function doRequestHandler(request, response,
   state.queryParameters = querystring.parse(state.urlInfo.query);
   state.pathPrefix = options.pathPrefix || this.get('path-prefix') || '';
   state.enableTrace = this.get('debug-level') !== 'none';
+  return state;
+};
+
+Server.prototype.doRequestHandler = function doRequestHandler(request, response, state) {
   // Find the route that matches this path
   const [route, params] = this.findMatchingRoute(request, state);
   // Optionally output debug info
   if (state.enableTrace) {
-    const timestamp = JSON.stringify(new Date());
+    const timestamp = new Date().toISOString();
     logger.log(timestamp, 'Request path:', JSON.stringify(state.urlInfo));
     logger.log(timestamp, 'Route:', route.path.toString());
   }
