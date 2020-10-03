@@ -30,9 +30,9 @@ const getTiddler = (wiki, params) => {
 const defaultRenderers = {};
 
 function makeNativeWidgetRenderer(mimeType, stringifier) {
-  const renderer = function nativeWidgetRenderer(wiki, tiddler, res) {
+  const renderer = function nativeWidgetRenderer(wiki, tiddler, res, enableTrace) {
     const container = tiddlerToDom(wiki, tiddler, $tw.fakeDocument);
-    stringifier(container, res);
+    stringifier(container, res, enableTrace);
   };
   renderer.mimeType = mimeType;
   return renderer;
@@ -47,7 +47,7 @@ defaultRenderers['text/plain'] = makeNativeWidgetRenderer(
 );
 defaultRenderers['text/gemini'] = makeNativeWidgetRenderer(
   'text/gemini',
-  (container, res) => domToGemtext(container, res),
+  (container, res, enableTrace) => domToGemtext(container, res, enableTrace),
 );
 
 function passthroughRenderer(wiki, tiddler, res) {
@@ -55,7 +55,7 @@ function passthroughRenderer(wiki, tiddler, res) {
 }
 defaultRenderers['text/x-passthrough'] = passthroughRenderer;
 
-function renderTiddler(wiki, tiddler, response) {
+function renderTiddler(wiki, tiddler, response, enableTrace) {
   /*
     Render the found tiddler. How we go about it depends on the tiddler's
     type, gemini-renderer, and gemini-mime-type fields.
@@ -97,7 +97,7 @@ function renderTiddler(wiki, tiddler, response) {
     response.mimeType += `; lang=${tiddler.fields.lang}`;
   }
 
-  renderer(wiki, tiddler, response);
+  renderer(wiki, tiddler, response, enableTrace);
   response.end();
 }
 exports.renderTiddler = renderTiddler;
@@ -108,5 +108,5 @@ exports.handler = function handler(request, response, params, state) {
     response.notFound();
     return;
   }
-  renderTiddler(state.wiki, tiddler, response);
+  renderTiddler(state.wiki, tiddler, response, state.enableTrace);
 };

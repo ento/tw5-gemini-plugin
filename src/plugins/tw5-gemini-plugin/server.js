@@ -105,12 +105,14 @@ Server.prototype.doRequestHandler = function doRequestHandler(request, response,
   state.urlInfo = url.parse(request.url);
   state.queryParameters = querystring.parse(state.urlInfo.query);
   state.pathPrefix = options.pathPrefix || this.get('path-prefix') || '';
+  state.enableTrace = this.get('debug-level') !== 'none';
   // Find the route that matches this path
   const [route, params] = this.findMatchingRoute(request, state);
   // Optionally output debug info
-  if (this.get('debug-level') !== 'none') {
-    logger.log('Request path:', JSON.stringify(state.urlInfo));
-    logger.log('Route:', JSON.stringify(route));
+  if (state.enableTrace) {
+    const timestamp = JSON.stringify(new Date());
+    logger.log(timestamp, 'Request path:', JSON.stringify(state.urlInfo));
+    logger.log(timestamp, 'Route:', route.path.toString());
   }
   // Return a 404 if we didn't find a route
   if (!route) {
