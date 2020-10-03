@@ -107,7 +107,7 @@ function visitElement(ctx, node, siblingIndex) {
       });
       break;
     case 'li':
-      ctx.block(node.tag, false, () => {
+      ctx.block(node.tag, true, () => {
         ctx.write('* ');
         visitChildren(ctx, node);
       });
