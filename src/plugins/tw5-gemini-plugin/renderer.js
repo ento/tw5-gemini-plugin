@@ -54,6 +54,10 @@ function visitLink(ctx, node, siblingIndex) {
    */
   const isSimpleTextLink = node.children.length === 1
         && node.children[0].nodeType === node.TEXT_NODE;
+  if (ctx.enableTrace) {
+    // eslint-disable-next-line no-console
+    console.log('link', 'in plain block', ctx.inPlainBlock, 'isSimpleTextLink', isSimpleTextLink, 'siblingIndex', siblingIndex);
+  }
   if (ctx.inPlainBlock && isSimpleTextLink && siblingIndex === 0) {
     if (href.length > 0) {
       const linkText = node.children[0].textContent;
@@ -170,6 +174,7 @@ class LinkReferences {
  */
 function domToGemtext(node, stream, enableTrace = false) {
   const ctx = {
+    enableTrace,
     isPre: false,
     prefix: '',
     blockQuoteLevel: 0,
@@ -207,6 +212,10 @@ function domToGemtext(node, stream, enableTrace = false) {
     ctx.justWroteNewline = true;
   };
   ctx.block = function block(trace, inPlainBlock, cb) {
+    if (ctx.enableTrace) {
+      // eslint-disable-next-line no-console
+      console.log('block', trace, 'inPlainBlock', inPlainBlock);
+    }
     const oldInPlainBlock = ctx.inPlainBlock;
     ctx.inPlainBlock = inPlainBlock;
     if (!ctx.justWroteNewline && !ctx.hasSomethingWritten) {
