@@ -9,7 +9,7 @@ Test Gemini renderer
 /* global $tw: false */
 
 const { PassThrough } = require('stream');
-const { render } = require('$:/plugins/ento/gemini/renderer.js');
+const { domToGemtext } = require('$:/plugins/ento/gemini/renderer.js');
 
 function expectStreamData(res, expected, done) {
   let body = '';
@@ -35,7 +35,7 @@ function expectRenderResult(fields, expected, done) {
   // call the renderer
   const res = new PassThrough();
   expectStreamData(res, expected, done);
-  render(container, res);
+  domToGemtext(container, res);
   res.end();
 }
 
