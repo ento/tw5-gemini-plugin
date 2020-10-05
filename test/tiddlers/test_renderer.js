@@ -3,110 +3,83 @@ title: test_renderer.js
 type: application/javascript
 tags: [[$:/tags/test-spec]]
 
-Test Gemini renderer
-\*/
+Test Gemini renderer using the golden test method.
 
+When a golden tiddler is not found, the test harness will save
+a new tiddler and its meta file in test/tiddlers/. Please move
+them to test/tiddlers/renderer_golden_test/ to keep the top-level
+directory organized. Here's a handy oneliner:
+
+```
+mv test/tiddlers/*.gmi* test/tiddlers/renderer_golden_test/
+```
+
+\*/
 /* global $tw: false */
 
 const { PassThrough } = require('stream');
 const { domToGemtext } = require('$:/plugins/ento/gemini/renderer.js');
 
-function expectStreamData(res, expected, done) {
+function onStreamFinish(stream, callback) {
   let body = '';
-  res.on('data', (chunk) => {
+  stream.on('data', (chunk) => {
     body += chunk;
   });
-  res.on('finish', () => {
+  stream.on('finish', () => {
+    callback(body);
+  });
+}
+
+function expectStreamData(res, expected, done) {
+  onStreamFinish(res, (body) => {
     expect(body).toEqual(expected);
     done();
   });
 }
 
-function expectRenderResult(fields, expected, done) {
-  const wiki = new $tw.Wiki();
-  wiki.addTiddler(fields);
-  const tiddler = wiki.getTiddler(fields.title);
+const INPUT_TIDDLER_TAG = 'renderer-golden-input';
+const OUTPUT_TIDDLER_TAG = 'renderer-golden-output';
+
+function goldenTest(inputTitle, done) {
+  const inputTiddler = $tw.wiki.getTiddler(inputTitle);
+  const goldenTitle = `${inputTiddler.fields.title}_golden`;
+  const golden = $tw.wiki.filterTiddlers(
+    `[title[${goldenTitle}]tag[${OUTPUT_TIDDLER_TAG}]]`,
+  );
   // parse and render as dom
-  const options = { variables: { currentTiddler: tiddler.fields.title } };
-  const parser = wiki.parseText(tiddler.fields.type, tiddler.fields.text, options);
-  const widgetNode = wiki.makeWidget(parser, options);
+  const options = { variables: { currentTiddler: inputTiddler.fields.title } };
+  const parser = $tw.wiki.parseText(inputTiddler.fields.type, inputTiddler.fields.text, options);
+  const widgetNode = $tw.wiki.makeWidget(parser, options);
   const container = $tw.fakeDocument.createElement('div');
   widgetNode.render(container, null);
   // call the renderer
   const res = new PassThrough();
-  expectStreamData(res, expected, done);
+  if (golden.length === 0) {
+    // eslint-disable-next-line no-console
+    console.log('Golden test output not found, saving the computed output as golden.');
+    onStreamFinish(res, (body) => {
+      $tw.wiki.addTiddler({
+        title: goldenTitle,
+        text: body,
+        type: 'text/gemini',
+        tags: [OUTPUT_TIDDLER_TAG],
+      });
+      done();
+    });
+  } else if (golden.length === 1) {
+    const goldenTiddler = $tw.wiki.getTiddler(golden[0]);
+    expectStreamData(res, goldenTiddler.fields.text, done);
+  } else {
+    expect(false).toEqual(true, `At most one corresponding golden tiddler is expected, but found ${golden.length}. Please delete the excess ones.`);
+  }
   domToGemtext(container, res);
   res.end();
 }
 
 describe('renderer', () => {
-  it('renders gemini features', (done) => {
-    const text = `text line
-=> gemini://localhost/
-=> /hello link title
-
-\`\`\`python
-def foo(): pass
-\`\`\`
-
-# h1
-## heading 2
-### heading 3
-#### heading 4
-
-* unordered
-* list
-
-> quote
-> lines
-
-closing line
-`;
-    const expected = `text line
-=> gemini://localhost/
-=> /hello link title
-
-\`\`\`
-def foo(): pass
-\`\`\`
-
-# h1
-## heading 2
-### heading 3
-### # heading 4
-
-* unordered
-* list
-
-> quote
-> lines
-
-closing line
-`;
-    const fields = {
-      text,
-      title: 'Hello',
-      type: 'text/gemini',
-    };
-    expectRenderResult(fields, expected, done);
-  });
-
-  it('renders html link reference', (done) => {
-    const text = `a<br>
-b<br>
-c <a href="http://example.com">example</a>
-`;
-    const expected = `a
-b
-c example [1]
-
-=> http://example.com [1]
-`;
-    const fields = {
-      text,
-      title: 'Hello',
-      type: 'text/vnd.tiddlywiki',
-    };
-    expectRenderResult(fields, expected, done);
+  $tw.utils.each($tw.wiki.filterTiddlers(`[tag[${INPUT_TIDDLER_TAG}]]`), (input) => {
+    it(`golden test: ${input}`, (done) => {
+      goldenTest(input, done);
+    });
   });
 });

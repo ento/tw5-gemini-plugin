@@ -1,6 +1,7 @@
 {
   "description": "plugin tests",
   "plugins": [
+    "tiddlywiki/filesystem",
     "tiddlywiki/jasmine",
     "tiddlywiki/markdown",
     "atomfeed"

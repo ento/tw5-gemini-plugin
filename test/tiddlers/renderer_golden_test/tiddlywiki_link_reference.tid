@@ -1,0 +1,7 @@
+title: tiddlywiki_link_reference
+tags: renderer-golden-input
+type: text/vnd.tiddlywiki
+
+a<br>
+b<br>
+c <a href="http://example.com">example</a>

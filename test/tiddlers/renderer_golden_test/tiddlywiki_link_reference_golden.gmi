@@ -1,0 +1,5 @@
+a
+b
+c example [1]
+
+=> http://example.com [1]
