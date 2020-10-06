@@ -95,7 +95,14 @@ Server.prototype.requestHandler = function requestHandler(request, response, may
   } catch (e) {
     // eslint-disable-next-line no-console
     console.trace(e);
-    response.statusCode = CODES.TEMPORARY_FAILURE;
+    switch (e.code) {
+      case 'ERR_INVALID_URL':
+        response.badRequest('Invalid URL');
+        break;
+      default:
+        response.statusCode = CODES.TEMPORARY_FAILURE;
+        break;
+    }
     response.end('');
   }
   const end = new Date();
@@ -113,7 +120,7 @@ Server.prototype.initState = function initState(request, options) {
   const state = {};
   state.wiki = options.wiki || this.wiki;
   state.server = this;
-  state.urlInfo = url.parse(request.url);
+  state.urlInfo = new url.URL(request.url);
   state.queryParameters = querystring.parse(state.urlInfo.query);
   state.pathPrefix = options.pathPrefix || this.get('path-prefix') || '';
   state.enableTrace = this.get('debug-level') !== 'none';
