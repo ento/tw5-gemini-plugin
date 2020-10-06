@@ -41,6 +41,16 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('[URLSchemeMissing] A URL without a scheme should be inferred as gemini', (done) => {
+    const wiki = new $tw.Wiki();
+    const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
+    wiki.addTiddler({ title: 'Hello', text: '## heading', type: 'text/gemini' });
+    const req = { url: '//localhost/' };
+    const res = createResponse();
+    expectResponse(res, done, '20 text/gemini\r\n## heading\n');
+    server.requestHandler(req, res);
+  });
+
   it('returns error response when request handler errors', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });

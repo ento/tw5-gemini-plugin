@@ -117,10 +117,11 @@ Server.prototype.requestHandler = function requestHandler(request, response, may
 };
 
 Server.prototype.initState = function initState(request, options) {
+  const reqUrl = request.url.startsWith('//') ? `gemini:${request.url}` : request.url;
   const state = {};
   state.wiki = options.wiki || this.wiki;
   state.server = this;
-  state.urlInfo = new url.URL(request.url);
+  state.urlInfo = new url.URL(reqUrl);
   state.queryParameters = querystring.parse(state.urlInfo.query);
   state.pathPrefix = options.pathPrefix || this.get('path-prefix') || '';
   state.enableTrace = this.get('debug-level') !== 'none';
@@ -131,7 +132,12 @@ Server.prototype.doRequestHandler = function doRequestHandler(request, response,
   if (state.urlInfo.pathname.length === 0) {
     const redirectTo = new url.URL('/', state.urlInfo);
     response.redirect(redirectTo.toString(), true);
-    response.end();
+    response.end('');
+    return;
+  }
+  if (state.urlInfo.protocol !== 'gemini:') {
+    response.statusCode = CODES.PROXY_REQUEST_REFUSED;
+    response.end('');
     return;
   }
   // Find the route that matches this path
