@@ -128,6 +128,12 @@ Server.prototype.initState = function initState(request, options) {
 };
 
 Server.prototype.doRequestHandler = function doRequestHandler(request, response, state) {
+  if (state.urlInfo.pathname.length === 0) {
+    const redirectTo = new url.URL('/', state.urlInfo);
+    response.redirect(redirectTo.toString(), true);
+    response.end();
+    return;
+  }
   // Find the route that matches this path
   const [route, params] = this.findMatchingRoute(request, state);
   // Optionally output debug info

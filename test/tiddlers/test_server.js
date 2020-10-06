@@ -32,6 +32,15 @@ describe('tw5-gemini-plugin server', () => {
     server.requestHandler(req, res);
   });
 
+  it('[HomepageRedirect] A URL with no trailing slash should redirect to the canonical resource', (done) => {
+    const wiki = new $tw.Wiki();
+    const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
+    const req = { url: 'gemini://localhost' };
+    const res = createResponse();
+    expectResponse(res, done, '31 gemini://localhost/\r\n');
+    server.requestHandler(req, res);
+  });
+
   it('returns error response when request handler errors', (done) => {
     const wiki = new $tw.Wiki();
     const server = new Server(wiki, null, { config: { 'root-tiddler': 'Hello' } });
