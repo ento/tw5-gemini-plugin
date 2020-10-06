@@ -13,17 +13,21 @@ const transform = require('$:/plugins/ento/gemini/transformer.js');
 const spacesRegExp = /[ \t]+/g;
 const newlinesRegExp = /[\r\n]+/g;
 
-function visitNode(ctx, node, siblingIndex) {
+function visitNode(ctx, node, maxSiblingIndex) {
   switch (node.nodeType) {
     case node.ELEMENT_NODE:
       // eslint-disable-next-line no-use-before-define
-      visitElement(ctx, node, siblingIndex);
+      visitElement(ctx, node, maxSiblingIndex);
       break;
     case node.TEXT_NODE:
-      if (ctx.isPre) {
+      if (ctx.enableTrace) {
+        // eslint-disable-next-line no-console
+        console.log('text', 'is pre', ctx.isPreformatted, JSON.stringify(node.textContent));
+      }
+      if (ctx.isPreformatted) {
         ctx.write(node.textContent);
       } else {
-        ctx.write(node.textContent.replace(newlinesRegExp, '').replace(spacesRegExp, ' '));
+        ctx.write(node.textContent.replace(newlinesRegExp, ' ').replace(spacesRegExp, ' '));
       }
       break;
     default:
@@ -32,7 +36,8 @@ function visitNode(ctx, node, siblingIndex) {
 }
 
 function visitChildren(ctx, node) {
-  $tw.utils.each(node.children, (child, index) => visitNode(ctx, child, index));
+  const maxSiblingIndex = node.children.length - 1;
+  $tw.utils.each(node.children, (child) => visitNode(ctx, child, maxSiblingIndex));
 }
 
 function visitHeading(ctx, node, level) {
@@ -44,7 +49,7 @@ function visitHeading(ctx, node, level) {
   });
 }
 
-function visitLink(ctx, node, siblingIndex) {
+function visitLink(ctx, node, maxSiblingIndex) {
   const href = node.getAttribute('href').trim();
   /*
    *               isTopLevelSimpleTextLink
@@ -56,9 +61,9 @@ function visitLink(ctx, node, siblingIndex) {
         && node.children[0].nodeType === node.TEXT_NODE;
   if (ctx.enableTrace) {
     // eslint-disable-next-line no-console
-    console.log('link', 'in plain block', ctx.inPlainBlock, 'isSimpleTextLink', isSimpleTextLink, 'siblingIndex', siblingIndex);
+    console.log('link', 'in plain block', ctx.inPlainBlock, 'isSimpleTextLink', isSimpleTextLink, 'maxSiblingIndex', maxSiblingIndex);
   }
-  if (ctx.inPlainBlock && isSimpleTextLink && siblingIndex === 0) {
+  if (ctx.inPlainBlock && isSimpleTextLink && maxSiblingIndex === 0) {
     if (href.length > 0) {
       const linkText = node.children[0].textContent;
       let line = `=> ${href}`;
@@ -74,7 +79,7 @@ function visitLink(ctx, node, siblingIndex) {
   }
 }
 
-function visitElement(ctx, node, siblingIndex) {
+function visitElement(ctx, node, maxSiblingIndex) {
   switch (node.tag) {
     case 'br':
       ctx.nl();
@@ -93,7 +98,9 @@ function visitElement(ctx, node, siblingIndex) {
       ctx.block(node.tag, false, () => {
         ctx.blockQuoteLevel += 1;
         ctx.prefix = `${'>'.repeat(ctx.blockQuoteLevel)} `;
-        visitChildren(ctx, node);
+        ctx.withState('isPreformatted', true, ctx.OR, () => {
+          visitChildren(ctx, node);
+        });
         ctx.blockQuoteLevel -= 1;
         ctx.prefix = '>'.repeat(ctx.blockQuoteLevel);
         if (ctx.blockquoteLevel > 0) {
@@ -116,21 +123,23 @@ function visitElement(ctx, node, siblingIndex) {
       visitChildren(ctx, node);
       break;
     case 'a':
-      visitLink(ctx, node, siblingIndex);
+      visitLink(ctx, node, maxSiblingIndex);
       break;
     case 'p':
     case 'ul':
       ctx.flushLinkReferences();
+      ctx.softNl('p-pre');
       ctx.block(node.tag, true, () => {
         visitChildren(ctx, node);
       });
+      ctx.nl('p-post');
       break;
     case 'pre':
       ctx.block(node.tag, false, () => {
         ctx.write('```\n');
-        ctx.isPre = true;
+        ctx.isPreformatted = true;
         visitChildren(ctx, node);
-        ctx.isPre = false;
+        ctx.isPreformatted = false;
         ctx.write('\n```');
       });
       break;
@@ -175,32 +184,48 @@ class LinkReferences {
 function domToGemtext(node, stream, enableTrace = false) {
   const ctx = {
     enableTrace,
-    isPre: false,
+    isPreformatted: false,
     prefix: '',
     blockQuoteLevel: 0,
+    inPlainBlock: true,
     hasSomethingWritten: true,
     justWroteNewline: false,
     linkReferences: new LinkReferences(),
+    AND: (a, b) => a && b,
+    OR: (a, b) => a || b,
+  };
+  ctx.withState = function withState(property, newState, merge, cb) {
+    const oldState = ctx[property];
+    ctx[property] = merge(oldState, newState);
+    try {
+      cb();
+    } finally {
+      ctx[property] = oldState;
+    }
   };
   ctx.write = function write(chunk, encoding, cb) {
-    if (ctx.prefix.length > 0) {
-      chunk.split('\n').forEach((line) => {
-        if (enableTrace) {
-          // eslint-disable-next-line no-console
-          console.log('prefix', ctx.prefix);
-        }
-        stream.write(ctx.prefix, encoding, cb);
-        if (enableTrace) {
-          // eslint-disable-next-line no-console
-          console.log('line', line);
-        }
-        stream.write(line, encoding, cb);
-      });
-    } else {
-      stream.write(chunk, encoding, cb);
+    if (chunk.length === 0) {
+      return;
     }
+    const lines = chunk.split('\n');
+    const emitFinalNewline = chunk.endsWith('\n');
+    lines.forEach((line, i) => {
+      stream.write(ctx.prefix, encoding, cb);
+      stream.write(line, encoding, cb);
+      ctx.justWroteNewline = false;
+      if (i === lines.length - 1) {
+        if (emitFinalNewline) {
+          ctx.nl('line-end');
+        }
+      } else {
+        ctx.nl('line-end');
+      }
+      if (enableTrace) {
+        // eslint-disable-next-line no-console
+        console.log('write', 'prefix', ctx.prefix, 'line', JSON.stringify(line));
+      }
+    });
     ctx.hasSomethingWritten = true;
-    ctx.justWroteNewline = false;
   };
   ctx.nl = function nl(trace) {
     if (enableTrace) {
@@ -211,39 +236,41 @@ function domToGemtext(node, stream, enableTrace = false) {
     ctx.hasSomethingWritten = true;
     ctx.justWroteNewline = true;
   };
-  ctx.block = function block(trace, inPlainBlock, cb) {
-    if (ctx.enableTrace) {
-      // eslint-disable-next-line no-console
-      console.log('block', trace, 'inPlainBlock', inPlainBlock);
-    }
-    const oldInPlainBlock = ctx.inPlainBlock;
-    ctx.inPlainBlock = inPlainBlock;
-    if (!ctx.justWroteNewline && !ctx.hasSomethingWritten) {
-      ctx.nl(`block-pre ${trace}`);
-    }
-    cb();
+  ctx.softNl = function softNl(trace) {
     if (!ctx.justWroteNewline) {
-      ctx.nl(`block-post ${trace}`);
+      ctx.nl(`${trace} (soft)`);
     }
-    ctx.inPlainBlock = oldInPlainBlock;
+  };
+  ctx.block = function block(trace, inPlainBlock, cb) {
+    ctx.withState('inPlainBlock', inPlainBlock, ctx.AND, () => {
+      if (ctx.enableTrace) {
+        // eslint-disable-next-line no-console
+        console.log('block', trace, 'inPlainBlock', ctx.inPlainBlock);
+      }
+      if (!ctx.hasSomethingWritten) {
+        ctx.softNl(`block-pre ${trace}`);
+      }
+      cb();
+      ctx.softNl(`block-post ${trace}`);
+    });
   };
   ctx.addLinkReference = function addLinkReference(href) {
     return ctx.linkReferences.add(href);
   };
   ctx.flushLinkReferences = function flushLinkReferences() {
     if (ctx.linkReferences.remainingCount > 0) {
-      ctx.nl('linkrefs-pre');
+      ctx.softNl('linkrefs-pre');
       Array.from(ctx.linkReferences.flushRefs()).forEach(({ href, number }) => {
         ctx.write(`=> ${href} [${number}]`);
         ctx.nl('linkref-each');
       });
+      ctx.nl('linkref-post');
     }
   };
   visitChildren(ctx, node);
   ctx.flushLinkReferences();
   return ctx.buffer;
 }
-
 exports.domToGemtext = domToGemtext;
 
 /**

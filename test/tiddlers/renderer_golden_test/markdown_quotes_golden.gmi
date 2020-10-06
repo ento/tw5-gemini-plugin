@@ -1,0 +1,26 @@
+
+> How to compose a successful critical commentary:
+> 1: You should attempt to re-express your target's position so clearly, vividly, and fairly that your target says, "Thanks, I wish I’d thought of putting it that way."
+> 2: You should list any points of agreement (especially if they are not matters of general or widespread agreement).
+> 3: You should mention anything you have learned from your target.
+> 4: Only then are you permitted to say so much as a word of rebuttal or criticism.
+
+See also:
+
+=> http://www.paulgraham.com/disagree.html How to disagree by Paul Graham
+
+Disagreement hierarchy
+
+> DH0. Name-calling.
+> DH1. Ad Hominem.
+> DH2. Responding to Tone.
+> DH3. Contradiction. (merely stating a contradictory opinion)
+> DH4. Counterargument. (contradiction plus reasoning or evidence)
+> DH5. Refutation.
+> DH6. Refuting the Central Point.
+
+Better Disagreement from Less Wrong [1] adds:
+
+=> https://www.lesswrong.com/posts/FhH8m5n8qGSSHsAgG/better-disagreement [1]
+
+> DH7. Improve the Argument, then Refute Its Central Point.
