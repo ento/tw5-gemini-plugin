@@ -10,10 +10,6 @@ a new tiddler and its meta file in test/tiddlers/. Please move
 them to test/tiddlers/renderer_golden_test/ to keep the top-level
 directory organized. Here's a handy oneliner:
 
-```
-mv test/tiddlers/*.gmi* test/tiddlers/renderer_golden_test/
-```
-
 \*/
 /* global $tw: false */
 
@@ -56,7 +52,11 @@ function goldenTest(inputTitle, done) {
   const res = new PassThrough();
   if (golden.length === 0) {
     // eslint-disable-next-line no-console
-    console.log('Golden test output not found, saving the computed output as golden.');
+    console.log(`Golden test output not found, saving the computed output as golden.
+Please move the output to the golden test directory with:
+
+mv test/tiddlers/*.gmi* test/tiddlers/renderer_golden_test/
+`);
     onStreamFinish(res, (body) => {
       $tw.wiki.addTiddler({
         title: goldenTitle,
