@@ -28,7 +28,7 @@ function onStreamFinish(stream, callback) {
 
 function expectStreamData(res, expected, done) {
   onStreamFinish(res, (body) => {
-    expect(body.trim()).toEqual(expected.trim());
+    expect(body.trim().split('\n')).toEqual(expected.trim().split('\n'));
     expect(Math.abs(body.length - expected.length)).toBeLessThan(2);
     done();
   });

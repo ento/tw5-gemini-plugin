@@ -11,7 +11,6 @@ Convert TiddlyWiki AST as Gemini text
 const transform = require('$:/plugins/ento/gemini/transformer.js');
 
 const spacesRegExp = /[ \t]+/g;
-const newlinesRegExp = /[\r\n]+/g;
 
 function visitNode(ctx, node, maxSiblingIndex) {
   switch (node.nodeType) {
@@ -27,7 +26,7 @@ function visitNode(ctx, node, maxSiblingIndex) {
       if (ctx.isPreformatted) {
         ctx.write(node.textContent);
       } else {
-        ctx.write(node.textContent.replace(newlinesRegExp, ' ').replace(spacesRegExp, ' '));
+        ctx.write(node.textContent.replace(spacesRegExp, ' '));
       }
       break;
     default:
@@ -82,7 +81,7 @@ function visitLink(ctx, node, maxSiblingIndex) {
 function visitElement(ctx, node, maxSiblingIndex) {
   switch (node.tag) {
     case 'br':
-      ctx.nl();
+      ctx.nl('br');
       break;
     case 'h1':
       visitHeading(ctx, node, 1);
@@ -128,11 +127,12 @@ function visitElement(ctx, node, maxSiblingIndex) {
     case 'p':
     case 'ul':
       ctx.flushLinkReferences();
-      ctx.softNl('p-pre');
       ctx.block(node.tag, true, () => {
         visitChildren(ctx, node);
       });
-      ctx.nl('p-post');
+      if (node.tag === 'p') {
+        ctx.ensureEmptyline('p-post');
+      }
       break;
     case 'pre':
       ctx.block(node.tag, false, () => {
@@ -140,7 +140,8 @@ function visitElement(ctx, node, maxSiblingIndex) {
         ctx.isPreformatted = true;
         visitChildren(ctx, node);
         ctx.isPreformatted = false;
-        ctx.write('\n```');
+        ctx.nl('pre-close');
+        ctx.write('```');
       });
       break;
     case 'head':
@@ -189,7 +190,7 @@ function domToGemtext(node, stream, enableTrace = false) {
     blockQuoteLevel: 0,
     inPlainBlock: true,
     hasSomethingWritten: true,
-    justWroteNewline: false,
+    numNewlines: 0,
     linkReferences: new LinkReferences(),
     AND: (a, b) => a && b,
     OR: (a, b) => a || b,
@@ -208,21 +209,20 @@ function domToGemtext(node, stream, enableTrace = false) {
       return;
     }
     const lines = chunk.split('\n');
-    const emitFinalNewline = chunk.endsWith('\n');
+    const skipFinalNewline = !chunk.endsWith('\n');
     lines.forEach((line, i) => {
+      if (line.length === 0) {
+        return;
+      }
       stream.write(ctx.prefix, encoding, cb);
       stream.write(line, encoding, cb);
-      ctx.justWroteNewline = false;
-      if (i === lines.length - 1) {
-        if (emitFinalNewline) {
-          ctx.nl('line-end');
-        }
-      } else {
-        ctx.nl('line-end');
-      }
+      ctx.numNewlines = 0;
       if (enableTrace) {
         // eslint-disable-next-line no-console
         console.log('write', 'prefix', ctx.prefix, 'line', JSON.stringify(line));
+      }
+      if (i !== lines.length - 1 || !skipFinalNewline) {
+        ctx.nl('line-end');
       }
     });
     ctx.hasSomethingWritten = true;
@@ -234,11 +234,19 @@ function domToGemtext(node, stream, enableTrace = false) {
     }
     stream.write('\n');
     ctx.hasSomethingWritten = true;
-    ctx.justWroteNewline = true;
+    ctx.numNewlines += 1;
   };
   ctx.softNl = function softNl(trace) {
-    if (!ctx.justWroteNewline) {
+    if (ctx.numNewlines === 0) {
       ctx.nl(`${trace} (soft)`);
+    }
+  };
+  ctx.ensureEmptyline = function ensureEmptyline(trace) {
+    if (ctx.numNewlines === 0) {
+      ctx.nl(`${trace} (ensure)`);
+    }
+    if (ctx.numNewlines === 1) {
+      ctx.nl(`${trace} (ensure)`);
     }
   };
   ctx.block = function block(trace, inPlainBlock, cb) {
