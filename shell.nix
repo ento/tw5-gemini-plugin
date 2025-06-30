@@ -1,10 +1,10 @@
 let
-  #nurPkgs = builtins.fetchTarball {
-  #  url = "https://github.com/ento/nur-packages/archive/85463ec.tar.gz";
-  #  # nix-prefetch-url --unpack --type sha256 $url
-  #  sha256 = "0ngikqx8kdxdldczlff5wjqc34wfqf613fy9ml7f24hnh8lsc5ga";
-  #};
-  nurPkgs = ../nur-packages/default.nix;
+  nurPkgs = builtins.fetchTarball {
+    url = "https://github.com/ento/nur-packages/archive/c7dbeaf.tar.gz";
+    # nix-prefetch-url --unpack --type sha256 $url
+    sha256 = "1kdylfmkcxn2ghj9c5lxsglnzliwmyl7irwrsb9zljl4isfwxbni";
+  };
+  # nurPkgs = ../nur-packages/default.nix;
   pkgs = import <nixpkgs> {
     config = {
       packageOverrides = pkgs: {
