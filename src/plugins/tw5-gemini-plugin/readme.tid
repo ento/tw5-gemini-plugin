@@ -26,9 +26,18 @@ Parameters:
 * `debug-level=none`: Set to any other string to enable request logging.
 * `path-prefix=`: Serve the wiki at the specified path.
 
-Config:
+Configuration:
 
 * `$:/plugins/ento/gemini/config/filter`: (default: none) Only serve Tiddlers that match this filter.
+
+Per-tiddler configuration:
+
+* `gemini-renderer` field: The server renders each Tiddler as a DOM tree
+  and converts it to gemtext. Specify this field to choose a different renderer.
+  Set to `text/html` or `text/plain` to return the DOM tree's HTML or text
+  content, respectively. Set to `text/x-passthrough` to return the Tiddler's
+  text as-is.
+* `gemini-mime-type` field: Overwrite the MIME type of the server response.
 
 !!! `text/gemini` parser
 
