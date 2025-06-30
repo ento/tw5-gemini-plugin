@@ -61,27 +61,29 @@ function renderTiddler(wiki, tiddler, response, enableTrace) {
     type, gemini-renderer, and gemini-mime-type fields.
 
     Which renderer to use is determined in the following order:
-    a. If gemini-renderer is specified, use it
-    b. If not, use the tiddler's type
-    c. If no renderer of that type is found, default to text/gemini
+    1. If gemini-renderer is specified, use it
+    2. If no renderer of that type is defined, default to text/gemini
 
     Available renderers are:
-    - text/gemini
+    - text/gemini (default)
     - text/html
     - text/plain
     - text/x-passthrough
 
     Of these, all but text/x-passthrough use the same broad strategy:
 
-    1. The tiddler text is parsed according to its type.
-    2. The parsed tree is rendered to DOM.
-    3. The DOM is converted to string by the renderer.
+    1. The tiddler is rendered to DOM by TiddlyWiki's rendering engine.
+    2. The DOM is converted to string by the chosen renderer.
+
+    text/gemini renderer converts the DOM to gemtext.
+    text/html renderer returns the DOM's inner HTML.
+    text/text renderer returns the DOM's inner text.
 
     The text/x-passthrough renderer returns the tiddler text as-is.
 
     The mime-type of the response is determined in the following order:
     1. gemini-mime-type field of the tiddler.
-    2. renderer's mimeType propert.
+    2. The renderer type unless it's text/x-passthrough
     3. type field of the tiddler.
   */
   const {
@@ -89,8 +91,7 @@ function renderTiddler(wiki, tiddler, response, enableTrace) {
     'gemini-mime-type': mimeTypeField,
     'gemini-renderer': renderTypeField,
   } = tiddler.fields;
-  const renderType = renderTypeField || type;
-  const renderer = defaultRenderers[renderType] || defaultRenderers['text/gemini'];
+  const renderer = defaultRenderers[renderTypeField] || defaultRenderers['text/gemini'];
 
   response.mimeType = mimeTypeField || renderer.mimeType || type;
   if (tiddler.fields.lang) {
