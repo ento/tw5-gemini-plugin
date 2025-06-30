@@ -44,7 +44,7 @@ describe('tw5-gemini-plugin parser', () => {
     const text = 'hello gemini';
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<p>hello gemini</p>');
+    expect(wrapper.innerHTML).toBe('<div>hello gemini</div>');
   });
 
   it('renders blank text line', () => {
@@ -52,7 +52,7 @@ describe('tw5-gemini-plugin parser', () => {
     const text = 'hello\n\ngemini\n';
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<p>hello</p><br><p>gemini</p><br>');
+    expect(wrapper.innerHTML).toBe('<div>hello</div><br><div>gemini</div>');
   });
 
   it('renders external link line without spaces', () => {
@@ -114,7 +114,7 @@ describe('tw5-gemini-plugin parser', () => {
 after`;
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<p>before</p><pre><code># hello</code></pre><p>after</p>');
+    expect(wrapper.innerHTML).toBe('<div>before</div><pre><code># hello</code></pre><div>after</div>');
   });
 
   it('renders heading lines', () => {
@@ -144,7 +144,7 @@ after`;
 *after list`;
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<p>list</p><ul><li>a</li><li>b</li></ul><p>*after list</p>');
+    expect(wrapper.innerHTML).toBe('<div>list</div><ul><li>a</li><li>b</li></ul><div>*after list</div>');
   });
 
   it('renders quoted lines', () => {
@@ -153,7 +153,7 @@ after`;
 > b`;
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<blockquote><div>a</div><div> b</div></blockquote>');
+    expect(wrapper.innerHTML).toBe('<blockquote><div>a</div><div>b</div></blockquote>');
   });
 
   it('renders quoted lines surrounded by text lines', () => {
@@ -164,7 +164,7 @@ after`;
 by foo`;
     const wrapper = renderText(wiki, text);
 
-    expect(wrapper.innerHTML).toBe('<p>quote</p><blockquote><div>a</div><div> b</div></blockquote><p>by foo</p>');
+    expect(wrapper.innerHTML).toBe('<div>quote</div><blockquote><div>a</div><div>b</div></blockquote><div>by foo</div>');
   });
 
   if (fc) {

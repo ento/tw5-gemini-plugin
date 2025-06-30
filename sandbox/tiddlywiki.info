@@ -3,7 +3,8 @@
     "plugins": [
         "tiddlywiki/filesystem",
         "tiddlywiki/markdown",
-        "tiddlywiki/tiddlyweb"
+        "tiddlywiki/tiddlyweb",
+        "atomfeed"
     ],
     "themes": [
         "tiddlywiki/vanilla"

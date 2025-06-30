@@ -1,0 +1,24 @@
+title: gemini_kitchen_sink
+tags: renderer-golden-input
+type: text/gemini
+
+text line
+=> gemini://localhost/
+=> /hello link title
+
+```python
+def foo(): pass
+```
+
+# h1
+## heading 2
+### heading 3
+#### heading 4
+
+* unordered
+* list
+
+> quote
+> lines
+
+closing line

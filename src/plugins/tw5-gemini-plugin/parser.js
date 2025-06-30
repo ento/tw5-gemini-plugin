@@ -99,7 +99,7 @@ function QuoteLine(line) {
 
 QuoteLine.prefix = /^>/;
 QuoteLine.handle = function handle(nodes, _state, line) {
-  nodes.push(new QuoteLine(line.text));
+  nodes.push(new QuoteLine(line.text.trim()));
 };
 Object.defineProperty(QuoteLine.prototype, 'type', { value: 'QuoteLine' });
 
@@ -125,7 +125,12 @@ function matches(line, lineType) {
 function parse(text) {
   const state = { preformatted: false, preformattedAlt: null };
   const nodes = [];
-  text.split('\n').forEach((line) => {
+  const lines = text.split('\n');
+  lines.forEach((line, index) => {
+    if (index === lines.length - 1 && line.length === 0) {
+      // Skip the last empty line;
+      return;
+    }
     if (line.length === 0) {
       nodes.push(new TextLine(line));
       return;
@@ -171,7 +176,7 @@ function render(nodes) {
         if (node.text.length === 0) {
           push({ type: 'element', tag: 'br' });
         } else {
-          push({ type: 'element', tag: 'p', children: [{ type: 'text', text: node.text }] });
+          push({ type: 'element', tag: 'div', children: [{ type: 'text', text: node.text }] });
         }
         break;
       case 'LinkLine':

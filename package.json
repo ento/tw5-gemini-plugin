@@ -16,7 +16,8 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jasmine": "^4.1.1",
     "fast-check": "^2.2.0",
-    "tiddlywiki": "^5.1.22"
+    "tiddlywiki": "^5.1.22",
+    "tw5-atomfeed": "https://github.com/dullroar/TW5-atomfeed/tarball/9861dae"
   },
   "peerDependencies": {
     "tiddlywiki": ">=5.0.8"

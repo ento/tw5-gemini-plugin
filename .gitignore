@@ -2,6 +2,13 @@
 /*.key
 /.direnv/
 /node_modules/
+/sandbox/output/
 /sandbox/tiddlers/
 /src/output/
 /test/output/
+# Ignore golden outputs saved directly under the tiddlers directory.
+# They should be moved to test/tiddlers/renderer_golden_test/.
+/test/tiddlers/*.gmi
+/test/tiddlers/*.gmi.meta
+# Ignore StoryList tiddler that's always saved.
+/test/tiddlers/$__StoryList.tid

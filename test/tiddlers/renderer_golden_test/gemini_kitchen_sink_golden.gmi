@@ -1,0 +1,20 @@
+text line
+=> gemini://localhost/
+=> /hello link title
+
+```
+def foo(): pass
+```
+
+# h1
+## heading 2
+### heading 3
+### # heading 4
+
+* unordered
+* list
+
+> quote
+> lines
+
+closing line

@@ -12,6 +12,7 @@ Serve tiddlers over the Gemini protocol
 const url = $tw.node ? require('url') : null;
 const querystring = $tw.node ? require('querystring') : null;
 const gemini = $tw.node ? require('@derhuerst/gemini') : null;
+const { CODES } = $tw.node ? require('@derhuerst/gemini/lib/statuses') : {};
 
 const logger = new $tw.utils.Logger('gemini-server');
 
@@ -85,20 +86,67 @@ Server.prototype.findMatchingRoute = function findMatchingRoute(request, state) 
 };
 
 Server.prototype.requestHandler = function requestHandler(request, response, maybeOptions) {
-  const options = maybeOptions || {};
-  // Compose the state object
+  const start = new Date();
+  let state = { urlInfo: {} };
+  try {
+    const options = maybeOptions || {};
+    state = this.initState(request, options);
+    this.doRequestHandler(request, response, state);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.trace(e);
+    switch (e.code) {
+      case 'ERR_INVALID_URL':
+        response.badRequest('Invalid URL');
+        break;
+      default:
+        response.statusCode = CODES.TEMPORARY_FAILURE;
+        break;
+    }
+    response.end('');
+  }
+  const end = new Date();
+  logger.log(
+    end.toISOString(),
+    JSON.stringify({
+      msec: (end - start),
+      path: state.urlInfo.pathname,
+      status: response.statusCode,
+    }),
+  );
+};
+
+Server.prototype.initState = function initState(request, options) {
+  const reqUrl = request.url.startsWith('//') ? `gemini:${request.url}` : request.url;
   const state = {};
   state.wiki = options.wiki || this.wiki;
   state.server = this;
-  state.urlInfo = url.parse(request.url);
+  state.urlInfo = new url.URL(reqUrl);
   state.queryParameters = querystring.parse(state.urlInfo.query);
   state.pathPrefix = options.pathPrefix || this.get('path-prefix') || '';
+  state.enableTrace = this.get('debug-level') !== 'none';
+  return state;
+};
+
+Server.prototype.doRequestHandler = function doRequestHandler(request, response, state) {
+  if (state.urlInfo.pathname.length === 0) {
+    const redirectTo = new url.URL('/', state.urlInfo);
+    response.redirect(redirectTo.toString(), true);
+    response.end('');
+    return;
+  }
+  if (state.urlInfo.protocol !== 'gemini:') {
+    response.statusCode = CODES.PROXY_REQUEST_REFUSED;
+    response.end('');
+    return;
+  }
   // Find the route that matches this path
   const [route, params] = this.findMatchingRoute(request, state);
   // Optionally output debug info
-  if (this.get('debug-level') !== 'none') {
-    logger.log('Request path:', JSON.stringify(state.urlInfo));
-    logger.log('Route:', JSON.stringify(route));
+  if (state.enableTrace) {
+    const timestamp = new Date().toISOString();
+    logger.log(timestamp, 'Request path:', JSON.stringify(state.urlInfo));
+    logger.log(timestamp, 'Route:', route.path.toString());
   }
   // Return a 404 if we didn't find a route
   if (!route) {
