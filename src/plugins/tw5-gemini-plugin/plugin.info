@@ -2,7 +2,7 @@
     "title": "$:/plugins/ento/gemini",
     "description": "Gemini server and other utilities",
     "author": "ento",
-    "version": "0.1.8",
+    "version": "0.2.0",
     "core-version": ">=5.0.8",
     "source": "https://github.com/ento/tw5-gemini-plugin",
     "plugin-type": "plugin",

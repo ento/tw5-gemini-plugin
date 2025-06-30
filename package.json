@@ -1,6 +1,6 @@
 {
   "name": "tw5-gemini-plugin",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Gemini server and other utilities for TiddlyWiki5",
   "main": "index.js",
   "directories": {
