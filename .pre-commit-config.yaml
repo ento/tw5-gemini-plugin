@@ -10,7 +10,7 @@ repos:
     name: Check version in package.json is consistent with the plugin's version
     entry: ./bin/check-version.js
     language: script
-    files: '^(src/plugins/*/plugin\.info|package\.json)$'
+    files: '^(src/plugins/[^/]+/plugin\.info|package\.json)$'
   - id: eslint
     name: eslint
     entry: npm run-script eslint
